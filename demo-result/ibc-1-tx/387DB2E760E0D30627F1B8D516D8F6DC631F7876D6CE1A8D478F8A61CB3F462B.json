@@ -1,0 +1,306 @@
+{
+  "height": "10",
+  "txhash": "387DB2E760E0D30627F1B8D516D8F6DC631F7876D6CE1A8D478F8A61CB3F462B",
+  "codespace": "",
+  "code": 0,
+  "data": "0A250A232F6962632E636F72652E636C69656E742E76312E4D7367437265617465436C69656E74",
+  "raw_log": "[{\"events\":[{\"type\":\"create_client\",\"attributes\":[{\"key\":\"client_id\",\"value\":\"07-tendermint-0\"},{\"key\":\"client_type\",\"value\":\"07-tendermint\"},{\"key\":\"consensus_height\",\"value\":\"0-17\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/ibc.core.client.v1.MsgCreateClient\"},{\"key\":\"module\",\"value\":\"ibc_client\"}]}]}]",
+  "logs": [
+    {
+      "msg_index": 0,
+      "log": "",
+      "events": [
+        {
+          "type": "create_client",
+          "attributes": [
+            {
+              "key": "client_id",
+              "value": "07-tendermint-0"
+            },
+            {
+              "key": "client_type",
+              "value": "07-tendermint"
+            },
+            {
+              "key": "consensus_height",
+              "value": "0-17"
+            }
+          ]
+        },
+        {
+          "type": "message",
+          "attributes": [
+            {
+              "key": "action",
+              "value": "/ibc.core.client.v1.MsgCreateClient"
+            },
+            {
+              "key": "module",
+              "value": "ibc_client"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "info": "",
+  "gas_wanted": "127362",
+  "gas_used": "95777",
+  "tx": {
+    "@type": "/cosmos.tx.v1beta1.Tx",
+    "body": {
+      "messages": [
+        {
+          "@type": "/ibc.core.client.v1.MsgCreateClient",
+          "client_state": {
+            "@type": "/ibc.lightclients.tendermint.v1.ClientState",
+            "chain_id": "ibc-0",
+            "trust_level": {
+              "numerator": "1",
+              "denominator": "3"
+            },
+            "trusting_period": "1540800s",
+            "unbonding_period": "1814400s",
+            "max_clock_drift": "600s",
+            "frozen_height": {
+              "revision_number": "0",
+              "revision_height": "0"
+            },
+            "latest_height": {
+              "revision_number": "0",
+              "revision_height": "17"
+            },
+            "proof_specs": [
+              {
+                "leaf_spec": {
+                  "hash": "SHA256",
+                  "prehash_key": "NO_HASH",
+                  "prehash_value": "SHA256",
+                  "length": "VAR_PROTO",
+                  "prefix": "AA=="
+                },
+                "inner_spec": {
+                  "child_order": [
+                    0,
+                    1
+                  ],
+                  "child_size": 33,
+                  "min_prefix_length": 4,
+                  "max_prefix_length": 12,
+                  "empty_child": null,
+                  "hash": "SHA256"
+                },
+                "max_depth": 0,
+                "min_depth": 0
+              },
+              {
+                "leaf_spec": {
+                  "hash": "SHA256",
+                  "prehash_key": "NO_HASH",
+                  "prehash_value": "SHA256",
+                  "length": "VAR_PROTO",
+                  "prefix": "AA=="
+                },
+                "inner_spec": {
+                  "child_order": [
+                    0,
+                    1
+                  ],
+                  "child_size": 32,
+                  "min_prefix_length": 1,
+                  "max_prefix_length": 1,
+                  "empty_child": null,
+                  "hash": "SHA256"
+                },
+                "max_depth": 0,
+                "min_depth": 0
+              }
+            ],
+            "upgrade_path": [
+              "upgrade",
+              "upgradedIBCState"
+            ],
+            "allow_update_after_expiry": true,
+            "allow_update_after_misbehaviour": true
+          },
+          "consensus_state": {
+            "@type": "/ibc.lightclients.tendermint.v1.ConsensusState",
+            "timestamp": "2022-09-21T07:12:02.668419043Z",
+            "root": {
+              "hash": "n184aqdqN84RyeIJzaQrzPGlrVd+wUiAyoinwwiTpH8="
+            },
+            "next_validators_hash": "AFCB4CDD5D6D6188764CFF8DC103A62267AB41B39E63C7C85E83C18252C457C2"
+          },
+          "signer": "cosmos18t2ancduajcqw4ulteld7wecwaz56eu7kwth0x"
+        }
+      ],
+      "memo": "rly(2.0.0)",
+      "timeout_height": "0",
+      "extension_options": [],
+      "non_critical_extension_options": []
+    },
+    "auth_info": {
+      "signer_infos": [
+        {
+          "public_key": {
+            "@type": "/cosmos.crypto.secp256k1.PubKey",
+            "key": "Atcs/qtZ67HJVm7NOl343Tcwi2ubBHFbb2k/2lmWPdnK"
+          },
+          "mode_info": {
+            "single": {
+              "mode": "SIGN_MODE_DIRECT"
+            }
+          },
+          "sequence": "0"
+        }
+      ],
+      "fee": {
+        "amount": [
+          {
+            "denom": "stake",
+            "amount": "3185"
+          }
+        ],
+        "gas_limit": "127362",
+        "payer": "",
+        "granter": ""
+      }
+    },
+    "signatures": [
+      "uZDdF3Mk43okWxhs2AykDeZ+YNizSajEqwMLm2izyaQJUJqPd7TG2/UBUA7Y0AZ7AFpi6OrqUJLQGq79srxMxg=="
+    ]
+  },
+  "timestamp": "2022-09-21T07:12:03Z",
+  "events": [
+    {
+      "type": "coin_spent",
+      "attributes": [
+        {
+          "key": "c3BlbmRlcg==",
+          "value": "Y29zbW9zMTh0MmFuY2R1YWpjcXc0dWx0ZWxkN3dlY3dhejU2ZXU3a3d0aDB4",
+          "index": true
+        },
+        {
+          "key": "YW1vdW50",
+          "value": "MzE4NXN0YWtl",
+          "index": true
+        }
+      ]
+    },
+    {
+      "type": "coin_received",
+      "attributes": [
+        {
+          "key": "cmVjZWl2ZXI=",
+          "value": "Y29zbW9zMTd4cGZ2YWttMmFtZzk2MnlsczZmODR6M2tlbGw4YzVsc2VycXRh",
+          "index": true
+        },
+        {
+          "key": "YW1vdW50",
+          "value": "MzE4NXN0YWtl",
+          "index": true
+        }
+      ]
+    },
+    {
+      "type": "transfer",
+      "attributes": [
+        {
+          "key": "cmVjaXBpZW50",
+          "value": "Y29zbW9zMTd4cGZ2YWttMmFtZzk2MnlsczZmODR6M2tlbGw4YzVsc2VycXRh",
+          "index": true
+        },
+        {
+          "key": "c2VuZGVy",
+          "value": "Y29zbW9zMTh0MmFuY2R1YWpjcXc0dWx0ZWxkN3dlY3dhejU2ZXU3a3d0aDB4",
+          "index": true
+        },
+        {
+          "key": "YW1vdW50",
+          "value": "MzE4NXN0YWtl",
+          "index": true
+        }
+      ]
+    },
+    {
+      "type": "message",
+      "attributes": [
+        {
+          "key": "c2VuZGVy",
+          "value": "Y29zbW9zMTh0MmFuY2R1YWpjcXc0dWx0ZWxkN3dlY3dhejU2ZXU3a3d0aDB4",
+          "index": true
+        }
+      ]
+    },
+    {
+      "type": "tx",
+      "attributes": [
+        {
+          "key": "ZmVl",
+          "value": "MzE4NXN0YWtl",
+          "index": true
+        }
+      ]
+    },
+    {
+      "type": "tx",
+      "attributes": [
+        {
+          "key": "YWNjX3NlcQ==",
+          "value": "Y29zbW9zMTh0MmFuY2R1YWpjcXc0dWx0ZWxkN3dlY3dhejU2ZXU3a3d0aDB4LzA=",
+          "index": true
+        }
+      ]
+    },
+    {
+      "type": "tx",
+      "attributes": [
+        {
+          "key": "c2lnbmF0dXJl",
+          "value": "dVpEZEYzTWs0M29rV3hoczJBeWtEZVorWU5pelNhakVxd01MbTJpenlhUUpVSnFQZDdURzIvVUJVQTdZMEFaN0FGcGk2T3JxVUpMUUdxNzlzcnhNeGc9PQ==",
+          "index": true
+        }
+      ]
+    },
+    {
+      "type": "message",
+      "attributes": [
+        {
+          "key": "YWN0aW9u",
+          "value": "L2liYy5jb3JlLmNsaWVudC52MS5Nc2dDcmVhdGVDbGllbnQ=",
+          "index": true
+        }
+      ]
+    },
+    {
+      "type": "create_client",
+      "attributes": [
+        {
+          "key": "Y2xpZW50X2lk",
+          "value": "MDctdGVuZGVybWludC0w",
+          "index": true
+        },
+        {
+          "key": "Y2xpZW50X3R5cGU=",
+          "value": "MDctdGVuZGVybWludA==",
+          "index": true
+        },
+        {
+          "key": "Y29uc2Vuc3VzX2hlaWdodA==",
+          "value": "MC0xNw==",
+          "index": true
+        }
+      ]
+    },
+    {
+      "type": "message",
+      "attributes": [
+        {
+          "key": "bW9kdWxl",
+          "value": "aWJjX2NsaWVudA==",
+          "index": true
+        }
+      ]
+    }
+  ]
+}
