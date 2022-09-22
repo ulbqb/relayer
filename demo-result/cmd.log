@@ -1,0 +1,168 @@
+root@52bcce797775 /t/relayer (v2.0.0)# rly tx link demo -d -t 3s
+2022-09-21T07:12:04.098408Z	debug	Creating client	{"src_chain_id": "ibc-1", "dst_chain_id": "ibc-0", "dst_header_height": 17, "trust_period": 1540800}
+2022-09-21T07:12:04.098501Z	debug	Creating client	{"src_chain_id": "ibc-0", "dst_chain_id": "ibc-1", "dst_header_height": 9, "trust_period": 1540800}
+2022-09-21T07:12:04.099954Z	debug	No client found on source chain tracking the state of counterparty chain; creating client	{"src_chain_id": "ibc-0", "dst_chain_id": "ibc-1"}
+2022-09-21T07:12:04.099983Z	debug	No client found on source chain tracking the state of counterparty chain; creating client	{"src_chain_id": "ibc-1", "dst_chain_id": "ibc-0"}
+2022-09-21T07:12:04.523382Z	info	Successful transaction	{"provider_type": "cosmos", "chain_id": "ibc-1", "gas_used": 95777, "fees": "3185stake", "fee_payer": "cosmos18t2ancduajcqw4ulteld7wecwaz56eu7kwth0x", "height": 10, "msg_types": ["/ibc.core.client.v1.MsgCreateClient"], "tx_hash": "387DB2E760E0D30627F1B8D516D8F6DC631F7876D6CE1A8D478F8A61CB3F462B"}
+2022-09-21T07:12:04.523437Z	info	Client Created	{"src_chain_id": "ibc-1", "src_client_id": "07-tendermint-0", "dst_chain_id": "ibc-0"}
+2022-09-21T07:12:04.722947Z	info	Successful transaction	{"provider_type": "cosmos", "chain_id": "ibc-0", "gas_used": 95737, "fees": "3184stake", "fee_payer": "cosmos145az8uq4cfhrqsweygktltyzekkvy5n7zdggdm", "height": 18, "msg_types": ["/ibc.core.client.v1.MsgCreateClient"], "tx_hash": "061ABA67502C4EEA87A6A660A81009AADA3796EB96CDF864DA0A7B081B884A98"}
+2022-09-21T07:12:04.722991Z	info	Client Created	{"src_chain_id": "ibc-0", "src_client_id": "07-tendermint-0", "dst_chain_id": "ibc-1"}
+2022-09-21T07:12:04.723009Z	info	Clients created	{"src_client_id": "07-tendermint-0", "src_chain_id": "ibc-0", "dst_client_id": "07-tendermint-0", "dst_chain_id": "ibc-1"}
+2022-09-21T07:12:04.723591Z	info	Starting event processor for connection handshake	{"src_chain_id": "ibc-0", "src_client_id": "07-tendermint-0", "dst_chain_id": "ibc-1", "dst_client_id": "07-tendermint-0"}
+2022-09-21T07:12:04.726019Z	debug	Entering main query loop	{"chain_name": "ibc-0", "chain_id": "ibc-0"}
+2022-09-21T07:12:04.727155Z	debug	Queried latest height	{"chain_name": "ibc-0", "chain_id": "ibc-0", "latest_height": 18}
+2022-09-21T07:12:04.727202Z	info	Chain is not yet in sync	{"chain_name": "ibc-0", "chain_id": "ibc-0", "latest_queried_block": 0, "latest_height": 18}
+2022-09-21T07:12:04.727355Z	debug	Entering main query loop	{"chain_name": "ibc-1", "chain_id": "ibc-1"}
+2022-09-21T07:12:04.728219Z	debug	Queried latest height	{"chain_name": "ibc-1", "chain_id": "ibc-1", "latest_height": 10}
+2022-09-21T07:12:04.728370Z	info	Chain is not yet in sync	{"chain_name": "ibc-1", "chain_id": "ibc-1", "latest_queried_block": 0, "latest_height": 10}
+2022-09-21T07:12:04.746101Z	debug	Observed IBC message	{"chain_name": "ibc-1", "chain_id": "ibc-1", "event_type": "create_client", "client_id": "07-tendermint-0"}
+2022-09-21T07:12:04.762370Z	debug	Observed IBC message	{"chain_name": "ibc-0", "chain_id": "ibc-0", "event_type": "create_client", "client_id": "07-tendermint-0"}
+2022-09-21T07:12:05.727381Z	debug	Queried latest height	{"chain_name": "ibc-0", "chain_id": "ibc-0", "latest_height": 19}
+2022-09-21T07:12:05.727426Z	info	Chain is in sync	{"chain_name": "ibc-0", "chain_id": "ibc-0"}
+2022-09-21T07:12:05.728624Z	debug	Queried latest height	{"chain_name": "ibc-1", "chain_id": "ibc-1", "latest_height": 11}
+2022-09-21T07:12:05.728652Z	info	Chain is in sync	{"chain_name": "ibc-1", "chain_id": "ibc-1"}
+2022-09-21T07:12:06.726987Z	debug	Queried latest height	{"chain_name": "ibc-0", "chain_id": "ibc-0", "latest_height": 20}
+2022-09-21T07:12:06.728324Z	debug	Queried latest height	{"chain_name": "ibc-1", "chain_id": "ibc-1", "latest_height": 12}
+2022-09-21T07:12:06.728353Z	warn	Error querying block data	{"chain_name": "ibc-0", "chain_id": "ibc-0", "error": "RPC error -32603 - Internal error: could not find results for height #20"}
+2022-09-21T07:12:06.761650Z	info	Successful transaction	{"provider_type": "cosmos", "chain_id": "ibc-0", "gas_used": 117633, "fees": "4005stake", "fee_payer": "cosmos145az8uq4cfhrqsweygktltyzekkvy5n7zdggdm", "height": 20, "msg_types": ["/ibc.core.client.v1.MsgUpdateClient", "/ibc.core.connection.v1.MsgConnectionOpenInit"], "tx_hash": "B323EC8295E08CD988B02F76D87CD6C008797805B7D51779A19F980931DA58C2"}
+2022-09-21T07:12:07.727362Z	debug	Queried latest height	{"chain_name": "ibc-0", "chain_id": "ibc-0", "latest_height": 20}
+2022-09-21T07:12:07.728962Z	debug	Queried latest height	{"chain_name": "ibc-1", "chain_id": "ibc-1", "latest_height": 13}
+2022-09-21T07:12:07.730669Z	debug	Observed IBC message	{"chain_name": "ibc-0", "chain_id": "ibc-0", "event_type": "update_client", "client_id": "07-tendermint-0"}
+2022-09-21T07:12:07.730707Z	debug	Observed IBC message	{"chain_name": "ibc-0", "chain_id": "ibc-0", "event_type": "connection_open_init", "client_id": "07-tendermint-0", "connection_id": "connection-0", "counterparty_client_id": "07-tendermint-0", "counterparty_connection_id": ""}
+2022-09-21T07:12:07.730753Z	debug	Waiting to relay connection message until counterparty height has incremented	{"chain_id": "ibc-1", "client_id": "07-tendermint-0", "connection_id": "", "client_id": "07-tendermint-0", "counterparty_connection_id": "connection-0", "counterparty_client_id": "07-tendermint-0", "event_type": "connection_open_try"}
+2022-09-21T07:12:07.731791Z	debug	Waiting to relay connection message until counterparty height has incremented	{"chain_id": "ibc-1", "client_id": "07-tendermint-0", "connection_id": "", "client_id": "07-tendermint-0", "counterparty_connection_id": "connection-0", "counterparty_client_id": "07-tendermint-0", "event_type": "connection_open_try"}
+2022-09-21T07:12:08.728154Z	debug	Queried latest height	{"chain_name": "ibc-0", "chain_id": "ibc-0", "latest_height": 21}
+2022-09-21T07:12:08.729657Z	debug	Queried latest height	{"chain_name": "ibc-1", "chain_id": "ibc-1", "latest_height": 14}
+2022-09-21T07:12:09.666185Z	info	Successful transaction	{"provider_type": "cosmos", "chain_id": "ibc-1", "gas_used": 157225, "fees": "5490stake", "fee_payer": "cosmos18t2ancduajcqw4ulteld7wecwaz56eu7kwth0x", "height": 15, "msg_types": ["/ibc.core.client.v1.MsgUpdateClient", "/ibc.core.connection.v1.MsgConnectionOpenTry"], "tx_hash": "6BED70E561B02B1F43D144DB954A153CA3CB1981755247602409C5DE202E301D"}
+2022-09-21T07:12:09.729423Z	debug	Queried latest height	{"chain_name": "ibc-1", "chain_id": "ibc-1", "latest_height": 15}
+2022-09-21T07:12:09.729638Z	debug	Queried latest height	{"chain_name": "ibc-0", "chain_id": "ibc-0", "latest_height": 22}
+2022-09-21T07:12:09.732751Z	debug	Observed IBC message	{"chain_name": "ibc-1", "chain_id": "ibc-1", "event_type": "update_client", "client_id": "07-tendermint-0"}
+2022-09-21T07:12:09.732785Z	debug	Observed IBC message	{"chain_name": "ibc-1", "chain_id": "ibc-1", "event_type": "connection_open_try", "client_id": "07-tendermint-0", "connection_id": "connection-0", "counterparty_client_id": "07-tendermint-0", "counterparty_connection_id": "connection-0"}
+2022-09-21T07:12:09.732819Z	debug	Waiting to relay connection message until counterparty height has incremented	{"chain_id": "ibc-0", "client_id": "07-tendermint-0", "connection_id": "connection-0", "client_id": "07-tendermint-0", "counterparty_connection_id": "connection-0", "counterparty_client_id": "07-tendermint-0", "event_type": "connection_open_ack"}
+2022-09-21T07:12:10.730042Z	debug	Queried latest height	{"chain_name": "ibc-0", "chain_id": "ibc-0", "latest_height": 23}
+2022-09-21T07:12:10.730042Z	debug	Queried latest height	{"chain_name": "ibc-1", "chain_id": "ibc-1", "latest_height": 16}
+2022-09-21T07:12:10.732491Z	debug	Waiting to relay connection message until counterparty height has incremented	{"chain_id": "ibc-0", "client_id": "07-tendermint-0", "connection_id": "connection-0", "client_id": "07-tendermint-0", "counterparty_connection_id": "connection-0", "counterparty_client_id": "07-tendermint-0", "event_type": "connection_open_ack"}
+2022-09-21T07:12:10.854667Z	info	Successful transaction	{"provider_type": "cosmos", "chain_id": "ibc-0", "gas_used": 148727, "fees": "5171stake", "fee_payer": "cosmos145az8uq4cfhrqsweygktltyzekkvy5n7zdggdm", "height": 24, "msg_types": ["/ibc.core.client.v1.MsgUpdateClient", "/ibc.core.connection.v1.MsgConnectionOpenAck"], "tx_hash": "8A189CA59E0F1C8265B76683733DAD4EA2DD89CA9433566B099E02070B6DC396"}
+2022-09-21T07:12:11.730049Z	debug	Queried latest height	{"chain_name": "ibc-1", "chain_id": "ibc-1", "latest_height": 17}
+2022-09-21T07:12:11.730049Z	debug	Queried latest height	{"chain_name": "ibc-0", "chain_id": "ibc-0", "latest_height": 24}
+2022-09-21T07:12:11.732740Z	debug	Observed IBC message	{"chain_name": "ibc-0", "chain_id": "ibc-0", "event_type": "update_client", "client_id": "07-tendermint-0"}
+2022-09-21T07:12:11.732888Z	debug	Observed IBC message	{"chain_name": "ibc-0", "chain_id": "ibc-0", "event_type": "connection_open_ack", "client_id": "07-tendermint-0", "connection_id": "connection-0", "counterparty_client_id": "07-tendermint-0", "counterparty_connection_id": "connection-0"}
+2022-09-21T07:12:11.732928Z	debug	Waiting to relay connection message until counterparty height has incremented	{"chain_id": "ibc-1", "client_id": "07-tendermint-0", "connection_id": "connection-0", "client_id": "07-tendermint-0", "counterparty_connection_id": "connection-0", "counterparty_client_id": "07-tendermint-0", "event_type": "connection_open_confirm"}
+2022-09-21T07:12:12.730277Z	debug	Queried latest height	{"chain_name": "ibc-0", "chain_id": "ibc-0", "latest_height": 25}
+2022-09-21T07:12:12.730293Z	debug	Queried latest height	{"chain_name": "ibc-1", "chain_id": "ibc-1", "latest_height": 18}
+2022-09-21T07:12:13.658866Z	info	Successful transaction	{"provider_type": "cosmos", "chain_id": "ibc-1", "gas_used": 119852, "fees": "4089stake", "fee_payer": "cosmos18t2ancduajcqw4ulteld7wecwaz56eu7kwth0x", "height": 19, "msg_types": ["/ibc.core.client.v1.MsgUpdateClient", "/ibc.core.connection.v1.MsgConnectionOpenConfirm"], "tx_hash": "FC60BE917D8B8EA8DB11462F462651A96B588018253A41AFABC66DCE699AFC33"}
+2022-09-21T07:12:13.731208Z	debug	Queried latest height	{"chain_name": "ibc-0", "chain_id": "ibc-0", "latest_height": 26}
+2022-09-21T07:12:13.731303Z	debug	Queried latest height	{"chain_name": "ibc-1", "chain_id": "ibc-1", "latest_height": 19}
+2022-09-21T07:12:13.734309Z	debug	Observed IBC message	{"chain_name": "ibc-1", "chain_id": "ibc-1", "event_type": "update_client", "client_id": "07-tendermint-0"}
+2022-09-21T07:12:13.734347Z	debug	Observed IBC message	{"chain_name": "ibc-1", "chain_id": "ibc-1", "event_type": "connection_open_confirm", "client_id": "07-tendermint-0", "connection_id": "connection-0", "counterparty_client_id": "07-tendermint-0", "counterparty_connection_id": "connection-0"}
+2022-09-21T07:12:13.734378Z	info	Connection handshake termination candidate	{"chain_id": "ibc-1", "client_id": "07-tendermint-0", "termination_client_id": "07-tendermint-0", "observed_client_id": "07-tendermint-0", "termination_counterparty_client_id": "07-tendermint-0", "observed_counterparty_client_id": "07-tendermint-0"}
+2022-09-21T07:12:13.734384Z	info	Found termination condition for connection handshake	{"chain_id": "ibc-1", "client_id": "07-tendermint-0"}
+2022-09-21T07:12:13.736030Z	error	Error assembling channel message	{"error": "error querying connection proof: post failed: Post \"http://localhost:26657\": context canceled"}
+2022-09-21T07:12:13.736165Z	error	Error sending messages	{"src_chain_id": "ibc-0", "dst_chain_id": "ibc-1", "src_client_id": "07-tendermint-0", "dst_client_id": "07-tendermint-0", "error": "all messages failed to assemble"}
+2022-09-21T07:12:13.736174Z	debug	Context done, quitting PathProcessor	{"chain_id_1": "ibc-0", "chain_id_2": "ibc-1", "client_id_1": "07-tendermint-0", "client_id_2": "07-tendermint-0", "error": "context canceled"}
+2022-09-21T07:12:13.738904Z	info	Starting event processor for channel handshake	{"src_chain_id": "ibc-0", "src_port_id": "transfer", "dst_chain_id": "ibc-1", "dst_port_id": "transfer"}
+2022-09-21T07:12:13.740672Z	debug	Entering main query loop	{"chain_name": "ibc-1", "chain_id": "ibc-1"}
+2022-09-21T07:12:13.740786Z	debug	Entering main query loop	{"chain_name": "ibc-0", "chain_id": "ibc-0"}
+2022-09-21T07:12:13.741397Z	debug	Queried latest height	{"chain_name": "ibc-1", "chain_id": "ibc-1", "latest_height": 19}
+2022-09-21T07:12:13.741409Z	info	Chain is in sync	{"chain_name": "ibc-1", "chain_id": "ibc-1"}
+2022-09-21T07:12:13.741483Z	debug	Queried latest height	{"chain_name": "ibc-0", "chain_id": "ibc-0", "latest_height": 26}
+2022-09-21T07:12:13.741499Z	info	Chain is in sync	{"chain_name": "ibc-0", "chain_id": "ibc-0"}
+2022-09-21T07:12:14.742991Z	debug	Queried latest height	{"chain_name": "ibc-0", "chain_id": "ibc-0", "latest_height": 27}
+2022-09-21T07:12:14.743448Z	debug	Queried latest height	{"chain_name": "ibc-1", "chain_id": "ibc-1", "latest_height": 20}
+2022-09-21T07:12:14.751694Z	debug	No cached IBC header for client trusted height	{"chain_id": "ibc-0", "client_id": "07-tendermint-0", "height": 17}
+2022-09-21T07:12:14.751878Z	debug	No cached IBC header for client trusted height	{"chain_id": "ibc-1", "client_id": "07-tendermint-0", "height": 26}
+2022-09-21T07:12:14.753841Z	debug	Had to query for client trusted IBC header	{"chain_id": "ibc-1", "counterparty_chain_id": "ibc-0", "counterparty_client_id": "07-tendermint-0", "height": 17, "latest_height": 20}
+2022-09-21T07:12:14.885259Z	info	Successful transaction	{"provider_type": "cosmos", "chain_id": "ibc-0", "gas_used": 162220, "fees": "5677stake", "fee_payer": "cosmos145az8uq4cfhrqsweygktltyzekkvy5n7zdggdm", "height": 28, "msg_types": ["/ibc.core.client.v1.MsgUpdateClient", "/ibc.core.channel.v1.MsgChannelOpenInit"], "tx_hash": "E39EC82A81461B527A1191BBB461904C5A11FDDCED6F1C41D30400722145F367"}
+2022-09-21T07:12:15.742332Z	debug	Queried latest height	{"chain_name": "ibc-1", "chain_id": "ibc-1", "latest_height": 21}
+2022-09-21T07:12:15.742783Z	debug	Queried latest height	{"chain_name": "ibc-0", "chain_id": "ibc-0", "latest_height": 28}
+2022-09-21T07:12:15.744233Z	debug	No cached IBC header for client trusted height	{"chain_id": "ibc-1", "client_id": "07-tendermint-0", "height": 26}
+2022-09-21T07:12:15.745798Z	debug	Observed IBC message	{"chain_name": "ibc-0", "chain_id": "ibc-0", "event_type": "update_client", "client_id": "07-tendermint-0"}
+2022-09-21T07:12:15.745863Z	debug	Observed IBC message	{"chain_name": "ibc-0", "chain_id": "ibc-0", "event_type": "channel_open_init", "channel_id": "channel-0", "port_id": "transfer", "counterparty_channel_id": "", "counterparty_port_id": "transfer", "connection_id": "connection-0"}
+2022-09-21T07:12:15.745885Z	debug	No cached IBC header for client trusted height	{"chain_id": "ibc-1", "client_id": "07-tendermint-0", "height": 26}
+2022-09-21T07:12:15.745897Z	debug	Waiting to relay channel message until counterparty height has incremented	{"chain_id": "ibc-1", "client_id": "07-tendermint-0", "channel_id": "", "port_id": "transfer", "counterparty_channel_id": "channel-0", "counterparty_port_id": "transfer", "event_type": "channel_open_try"}
+2022-09-21T07:12:16.742353Z	debug	Queried latest height	{"chain_name": "ibc-1", "chain_id": "ibc-1", "latest_height": 22}
+2022-09-21T07:12:16.743248Z	debug	Queried latest height	{"chain_name": "ibc-0", "chain_id": "ibc-0", "latest_height": 29}
+2022-09-21T07:12:16.744142Z	debug	No cached IBC header for client trusted height	{"chain_id": "ibc-1", "client_id": "07-tendermint-0", "height": 26}
+2022-09-21T07:12:16.744169Z	debug	Waiting to relay channel message until counterparty height has incremented	{"chain_id": "ibc-1", "client_id": "07-tendermint-0", "channel_id": "", "port_id": "transfer", "counterparty_channel_id": "channel-0", "counterparty_port_id": "transfer", "event_type": "channel_open_try"}
+2022-09-21T07:12:16.745669Z	debug	No cached IBC header for client trusted height	{"chain_id": "ibc-1", "client_id": "07-tendermint-0", "height": 26}
+2022-09-21T07:12:16.747183Z	debug	Had to query for client trusted IBC header	{"chain_id": "ibc-0", "counterparty_chain_id": "ibc-1", "counterparty_client_id": "07-tendermint-0", "height": 26, "latest_height": 29}
+2022-09-21T07:12:17.676475Z	info	Successful transaction	{"provider_type": "cosmos", "chain_id": "ibc-1", "gas_used": 175567, "fees": "6177stake", "fee_payer": "cosmos18t2ancduajcqw4ulteld7wecwaz56eu7kwth0x", "height": 23, "msg_types": ["/ibc.core.client.v1.MsgUpdateClient", "/ibc.core.channel.v1.MsgChannelOpenTry"], "tx_hash": "90F0083B100AC0ABEB45AC279578C567B6607D7F70648102EF65EAA1CF0B85C0"}
+2022-09-21T07:12:17.742804Z	debug	Queried latest height	{"chain_name": "ibc-1", "chain_id": "ibc-1", "latest_height": 23}
+2022-09-21T07:12:17.743358Z	debug	Queried latest height	{"chain_name": "ibc-0", "chain_id": "ibc-0", "latest_height": 30}
+2022-09-21T07:12:17.745600Z	debug	Observed IBC message	{"chain_name": "ibc-1", "chain_id": "ibc-1", "event_type": "update_client", "client_id": "07-tendermint-0"}
+2022-09-21T07:12:17.745635Z	debug	Observed IBC message	{"chain_name": "ibc-1", "chain_id": "ibc-1", "event_type": "channel_open_try", "channel_id": "channel-0", "port_id": "transfer", "counterparty_channel_id": "channel-0", "counterparty_port_id": "transfer", "connection_id": "connection-0"}
+2022-09-21T07:12:17.745651Z	debug	No cached IBC header for client trusted height	{"chain_id": "ibc-1", "client_id": "07-tendermint-0", "height": 30}
+2022-09-21T07:12:17.745658Z	debug	Waiting to relay channel message until counterparty height has incremented	{"chain_id": "ibc-0", "client_id": "07-tendermint-0", "channel_id": "channel-0", "port_id": "transfer", "counterparty_channel_id": "channel-0", "counterparty_port_id": "transfer", "event_type": "channel_open_ack"}
+2022-09-21T07:12:17.747041Z	debug	Waiting to relay channel message until counterparty height has incremented	{"chain_id": "ibc-0", "client_id": "07-tendermint-0", "channel_id": "channel-0", "port_id": "transfer", "counterparty_channel_id": "channel-0", "counterparty_port_id": "transfer", "event_type": "channel_open_ack"}
+2022-09-21T07:12:18.743334Z	debug	Queried latest height	{"chain_name": "ibc-0", "chain_id": "ibc-0", "latest_height": 31}
+2022-09-21T07:12:18.744178Z	debug	Queried latest height	{"chain_name": "ibc-1", "chain_id": "ibc-1", "latest_height": 24}
+2022-09-21T07:12:18.745142Z	debug	Waiting to relay channel message until counterparty height has incremented	{"chain_id": "ibc-0", "client_id": "07-tendermint-0", "channel_id": "channel-0", "port_id": "transfer", "counterparty_channel_id": "channel-0", "counterparty_port_id": "transfer", "event_type": "channel_open_ack"}
+2022-09-21T07:12:18.968335Z	info	Successful transaction	{"provider_type": "cosmos", "chain_id": "ibc-0", "gas_used": 126699, "fees": "4345stake", "fee_payer": "cosmos145az8uq4cfhrqsweygktltyzekkvy5n7zdggdm", "height": 32, "msg_types": ["/ibc.core.client.v1.MsgUpdateClient", "/ibc.core.channel.v1.MsgChannelOpenAck"], "tx_hash": "908ABF444685D73C23CA17E063D569DE1AB036D1DE26EE76DC875AF64BDD5E0D"}
+2022-09-21T07:12:19.743946Z	debug	Queried latest height	{"chain_name": "ibc-1", "chain_id": "ibc-1", "latest_height": 25}
+2022-09-21T07:12:19.744640Z	debug	Queried latest height	{"chain_name": "ibc-0", "chain_id": "ibc-0", "latest_height": 32}
+2022-09-21T07:12:19.751697Z	debug	Observed IBC message	{"chain_name": "ibc-0", "chain_id": "ibc-0", "event_type": "update_client", "client_id": "07-tendermint-0"}
+2022-09-21T07:12:19.751938Z	debug	Observed IBC message	{"chain_name": "ibc-0", "chain_id": "ibc-0", "event_type": "channel_open_ack", "channel_id": "channel-0", "port_id": "transfer", "counterparty_channel_id": "channel-0", "counterparty_port_id": "transfer", "connection_id": "connection-0"}
+2022-09-21T07:12:19.752473Z	debug	Waiting to relay channel message until counterparty height has incremented	{"chain_id": "ibc-1", "client_id": "07-tendermint-0", "channel_id": "channel-0", "port_id": "transfer", "counterparty_channel_id": "channel-0", "counterparty_port_id": "transfer", "event_type": "channel_open_confirm"}
+2022-09-21T07:12:20.743893Z	debug	Queried latest height	{"chain_name": "ibc-1", "chain_id": "ibc-1", "latest_height": 26}
+2022-09-21T07:12:20.744222Z	debug	Queried latest height	{"chain_name": "ibc-0", "chain_id": "ibc-0", "latest_height": 33}
+2022-09-21T07:12:20.745913Z	debug	Waiting to relay channel message until counterparty height has incremented	{"chain_id": "ibc-1", "client_id": "07-tendermint-0", "channel_id": "channel-0", "port_id": "transfer", "counterparty_channel_id": "channel-0", "counterparty_port_id": "transfer", "event_type": "channel_open_confirm"}
+2022-09-21T07:12:21.744868Z	debug	Queried latest height	{"chain_name": "ibc-0", "chain_id": "ibc-0", "latest_height": 34}
+2022-09-21T07:12:21.744912Z	debug	Queried latest height	{"chain_name": "ibc-1", "chain_id": "ibc-1", "latest_height": 27}
+2022-09-21T07:12:21.748387Z	debug	Observed IBC message	{"chain_name": "ibc-1", "chain_id": "ibc-1", "event_type": "update_client", "client_id": "07-tendermint-0"}
+2022-09-21T07:12:21.748450Z	debug	Observed IBC message	{"chain_name": "ibc-1", "chain_id": "ibc-1", "event_type": "channel_open_confirm", "channel_id": "channel-0", "port_id": "transfer", "counterparty_channel_id": "channel-0", "counterparty_port_id": "transfer", "connection_id": "connection-0"}
+2022-09-21T07:12:21.773614Z	info	Successful transaction	{"provider_type": "cosmos", "chain_id": "ibc-1", "gas_used": 126499, "fees": "4338stake", "fee_payer": "cosmos18t2ancduajcqw4ulteld7wecwaz56eu7kwth0x", "height": 27, "msg_types": ["/ibc.core.client.v1.MsgUpdateClient", "/ibc.core.channel.v1.MsgChannelOpenConfirm"], "tx_hash": "52719A2E7B9213CE6EE0E8DF9F8A58F2124BAC3C279B3A40CFE8E687573A1DC0"}
+2022-09-21T07:12:21.773734Z	info	Found termination condition for channel handshake	{"chain_id": "ibc-1", "client_id": "07-tendermint-0"}
+2022-09-21T07:12:21.773799Z	debug	Context done, quitting PathProcessor	{"chain_id_1": "ibc-0", "chain_id_2": "ibc-1", "client_id_1": "07-tendermint-0", "client_id_2": "07-tendermint-0", "error": "context canceled"}
+
+
+root@52bcce797775 /t/relayer (v2.0.0)# rly q balance ibc-0
+address {cosmos145az8uq4cfhrqsweygktltyzekkvy5n7zdggdm} balance {100000000000samoleans,99999977618stake} 
+
+
+root@52bcce797775 /t/relayer (v2.0.0)# rly q bal ibc-1
+address {cosmos18t2ancduajcqw4ulteld7wecwaz56eu7kwth0x} balance {100000000000samoleans,99999976721stake} 
+
+
+root@52bcce797775:/tmp/relayer# rly tx transfer ibc-0 ibc-1 1000000samoleans $(rly chains address ibc-1) channel-0
+2022-09-21T07:12:37.236618Z	info	Successful transaction	{"provider_type": "cosmos", "chain_id": "ibc-0", "packet_src_channel": "channel-0", "packet_dst_channel": "channel-0", "gas_used": 97860, "fees": "3264stake", "fee_payer": "cosmos145az8uq4cfhrqsweygktltyzekkvy5n7zdggdm", "height": 50, "msg_types": ["/ibc.applications.transfer.v1.MsgTransfer"], "tx_hash": "CCCB81A9FE3D17B646CC80176C949E549E7D6F06C4776961BD6805E135870EE9"}
+
+
+root@52bcce797775 /t/relayer (v2.0.0)# rly tx relay-pkts demo channel-0 -d
+2022-09-21T07:12:44.070760Z	info	Successful transaction	{"provider_type": "cosmos", "chain_id": "ibc-1", "packet_src_channel": "channel-0", "packet_dst_channel": "channel-0", "gas_used": 173244, "fees": "6090stake", "fee_payer": "cosmos18t2ancduajcqw4ulteld7wecwaz56eu7kwth0x", "height": 49, "msg_types": ["/ibc.core.client.v1.MsgUpdateClient", "/ibc.core.channel.v1.MsgRecvPacket"], "tx_hash": "97A75F555236B77B3E3880682D67811C48B9F6AF6FED2A6D02E40A1AEE1A7373"}
+2022-09-21T07:12:44.070824Z	info	Relayed packets	{"count": 1, "from_chain_id": "ibc-0", "from_port_id": "transfer", "to_chain_id": "ibc-1", "to_port_id": "transfer"}
+
+
+root@52bcce797775 /t/relayer (v2.0.0)# rly tx relay-acks demo channel-0 -d
+2022-09-21T07:12:52.954269Z	error	Failed to query packet acknowledgement commitments after max attempts	{"channel_id": "channel-0", "port_id": "transfer", "attempts": 5, "error": "no error on QueryPacketUnrelayedAcknowledgements for ibc-0, however response is nil"}
+2022-09-21T07:12:53.493768Z	info	Successful transaction	{"provider_type": "cosmos", "chain_id": "ibc-0", "packet_src_channel": "channel-0", "packet_dst_channel": "channel-0", "gas_used": 128141, "fees": "4399stake", "fee_payer": "cosmos145az8uq4cfhrqsweygktltyzekkvy5n7zdggdm", "height": 66, "msg_types": ["/ibc.core.client.v1.MsgUpdateClient", "/ibc.core.channel.v1.MsgAcknowledgement"], "tx_hash": "2678D01ABEEF6B6A1B3B934FFE63D519B1E73B1245C87AD044ED80E555817D83"}
+2022-09-21T07:12:53.493838Z	info	Relayed packets	{"count": 1, "from_chain_id": "ibc-1", "from_port_id": "transfer", "to_chain_id": "ibc-0", "to_port_id": "transfer"}
+
+
+root@52bcce797775 /t/relayer (v2.0.0)# rly q bal ibc-0
+address {cosmos145az8uq4cfhrqsweygktltyzekkvy5n7zdggdm} balance {99999000000samoleans,99999969955stake} 
+
+
+root@52bcce797775 /t/relayer (v2.0.0)# rly q bal ibc-1
+address {cosmos18t2ancduajcqw4ulteld7wecwaz56eu7kwth0x} balance {1000000transfer/channel-0/samoleans,100000000000samoleans,99999970631stake} 
+
+
+root@52bcce797775:/tmp/relayer# rly tx transfer ibc-1 ibc-0 1000000ibc/27A6394C3F9FF9C9DCF5DFFADF9BB5FE9A37C7E92B006199894CF1824DF9AC7C $(rly chains addr ibc-0) channel-0
+2022-09-21T07:13:07.373527Z	info	Successful transaction	{"provider_type": "cosmos", "chain_id": "ibc-1", "packet_src_channel": "channel-0", "packet_dst_channel": "channel-0", "gas_used": 101102, "fees": "3385stake", "fee_payer": "cosmos18t2ancduajcqw4ulteld7wecwaz56eu7kwth0x", "height": 72, "msg_types": ["/ibc.applications.transfer.v1.MsgTransfer"], "tx_hash": "2A55CC6E640173A819A257B45BD6B8A69AFFA65F1F4D763F5DB186048B7553D5"}
+
+
+root@52bcce797775 /t/relayer (v2.0.0)# rly tx relay-pkts demo channel-0 -d
+2022-09-21T07:13:16.715930Z	info	Successful transaction	{"provider_type": "cosmos", "chain_id": "ibc-0", "packet_src_channel": "channel-0", "packet_dst_channel": "channel-0", "gas_used": 149513, "fees": "5201stake", "fee_payer": "cosmos145az8uq4cfhrqsweygktltyzekkvy5n7zdggdm", "height": 89, "msg_types": ["/ibc.core.client.v1.MsgUpdateClient", "/ibc.core.channel.v1.MsgRecvPacket"], "tx_hash": "BBC9B09B4DA2E805D0C3FEC546603EC18B384E1CE74A39CFAEBC18B40E07E824"}
+2022-09-21T07:13:16.715997Z	info	Relayed packets	{"count": 1, "from_chain_id": "ibc-1", "from_port_id": "transfer", "to_chain_id": "ibc-0", "to_port_id": "transfer"}
+
+
+root@52bcce797775 /t/relayer (v2.0.0)# rly tx relay-acks demo channel-0 -d
+2022-09-21T07:13:21.575128Z	info	Successful transaction	{"provider_type": "cosmos", "chain_id": "ibc-1", "packet_src_channel": "channel-0", "packet_dst_channel": "channel-0", "gas_used": 128772, "fees": "4423stake", "fee_payer": "cosmos18t2ancduajcqw4ulteld7wecwaz56eu7kwth0x", "height": 86, "msg_types": ["/ibc.core.client.v1.MsgUpdateClient", "/ibc.core.channel.v1.MsgAcknowledgement"], "tx_hash": "9B7F63DF9D7227150478178E06913E7A285115BEDD479588E1823B8401B45863"}
+2022-09-21T07:13:21.575259Z	info	Relayed packets	{"count": 1, "from_chain_id": "ibc-0", "from_port_id": "transfer", "to_chain_id": "ibc-1", "to_port_id": "transfer"}
+
+
+root@52bcce797775 /t/relayer (v2.0.0)# rly q bal ibc-0
+address {cosmos145az8uq4cfhrqsweygktltyzekkvy5n7zdggdm} balance {100000000000samoleans,99999964754stake} 
+
+
+root@52bcce797775 /t/relayer (v2.0.0)# rly q bal ibc-1
+address {cosmos18t2ancduajcqw4ulteld7wecwaz56eu7kwth0x} balance {100000000000samoleans,99999962823stake} 
