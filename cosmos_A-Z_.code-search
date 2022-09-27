@@ -1,0 +1,18 @@
+# Query: cosmos\\.[A-Z]
+# Flags: CaseSensitive RegExp
+
+7 results - 5 files
+
+cmd/config.go:
+  343: 		"cosmos": reflect.TypeOf(cosmos.CosmosProviderConfig{}),
+  395: 		iw.Value = new(cosmos.CosmosProviderConfig)
+
+cmd/start.go:
+  101: 					if ccp, ok := chain.ChainProvider.(*cosmos.CosmosProvider); ok {
+
+relayer/log-chain.go:
+  19: 		case cosmos.CosmosMessage:
+
+relayer/strategies.go:
+   99: 	case *cosmos.CosmosProvider:
+  100: 		return cosmos.NewCosmosChainProcessor(log, p, metrics)
