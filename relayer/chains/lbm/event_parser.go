@@ -1,4 +1,4 @@
-package cosmos
+package lbm
 
 import (
 	"encoding/hex"
@@ -27,7 +27,7 @@ type ibcMessageInfo interface {
 	MarshalLogObject(enc zapcore.ObjectEncoder) error
 }
 
-func (ccp *CosmosChainProcessor) ibcMessagesFromBlockEvents(
+func (ccp *LBMChainProcessor) ibcMessagesFromBlockEvents(
 	beginBlockEvents, endBlockEvents []abci.Event,
 	height uint64,
 ) (res []ibcMessage) {

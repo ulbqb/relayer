@@ -1,4 +1,4 @@
-package cosmos
+package lbm
 
 import (
 	"context"
@@ -59,7 +59,7 @@ var (
 
 // SendMessage attempts to sign, encode & send a RelayerMessage
 // This is used extensively in the relayer as an extension of the Provider interface
-func (cc *CosmosProvider) SendMessage(ctx context.Context, msg provider.RelayerMessage, memo string) (*provider.RelayerTxResponse, bool, error) {
+func (cc *LBMProvider) SendMessage(ctx context.Context, msg provider.RelayerMessage, memo string) (*provider.RelayerTxResponse, bool, error) {
 	return cc.SendMessages(ctx, []provider.RelayerMessage{msg}, memo)
 }
 
@@ -70,7 +70,7 @@ func (cc *CosmosProvider) SendMessage(ctx context.Context, msg provider.RelayerM
 // transaction will not return an error. If a transaction is successfully sent, the result of the execution
 // of that transaction will be logged. A boolean indicating if a transaction was successfully
 // sent and executed successfully is returned.
-func (cc *CosmosProvider) SendMessages(ctx context.Context, msgs []provider.RelayerMessage, memo string) (*provider.RelayerTxResponse, bool, error) {
+func (cc *LBMProvider) SendMessages(ctx context.Context, msgs []provider.RelayerMessage, memo string) (*provider.RelayerTxResponse, bool, error) {
 	var resp *sdk.TxResponse
 	var fees sdk.Coins
 
@@ -214,7 +214,7 @@ func parseEventsFromTxResponse(resp *sdk.TxResponse) []provider.RelayerEvent {
 	return events
 }
 
-func (cc *CosmosProvider) buildMessages(ctx context.Context, msgs []provider.RelayerMessage, memo string) ([]byte, sdk.Coins, error) {
+func (cc *LBMProvider) buildMessages(ctx context.Context, msgs []provider.RelayerMessage, memo string) ([]byte, sdk.Coins, error) {
 	// Query account details
 	txf, err := cc.PrepareFactory(cc.TxFactory())
 	if err != nil {
@@ -229,7 +229,7 @@ func (cc *CosmosProvider) buildMessages(ctx context.Context, msgs []provider.Rel
 	// TODO: This is related to GRPC client stuff?
 	// https://github.com/cosmos/cosmos-sdk/blob/5725659684fc93790a63981c653feee33ecf3225/client/tx/tx.go#L297
 	// If users pass gas adjustment, then calculate gas
-	_, adjusted, err := cc.CalculateGas(ctx, txf, CosmosMsgs(msgs...)...)
+	_, adjusted, err := cc.CalculateGas(ctx, txf, LBMMsgs(msgs...)...)
 	if err != nil {
 		return nil, sdk.Coins{}, err
 	}
@@ -240,7 +240,7 @@ func (cc *CosmosProvider) buildMessages(ctx context.Context, msgs []provider.Rel
 	var txb client.TxBuilder
 	// Build the transaction builder & retry on failures
 	if err := retry.Do(func() error {
-		txb, err = txf.BuildUnsignedTx(CosmosMsgs(msgs...)...)
+		txb, err = txf.BuildUnsignedTx(LBMMsgs(msgs...)...)
 		if err != nil {
 			return err
 		}
@@ -252,7 +252,7 @@ func (cc *CosmosProvider) buildMessages(ctx context.Context, msgs []provider.Rel
 	// Attach the signature to the transaction
 	// Force encoding in the chain specific address
 	for _, msg := range msgs {
-		cc.Codec.Marshaler.MustMarshalJSON(CosmosMsg(msg))
+		cc.Codec.Marshaler.MustMarshalJSON(LBMMsg(msg))
 	}
 
 	done := cc.SetSDKContext()
@@ -287,7 +287,7 @@ func (cc *CosmosProvider) buildMessages(ctx context.Context, msgs []provider.Rel
 }
 
 // MsgCreateClient creates an sdk.Msg to update the client on src with consensus state from dst
-func (cc *CosmosProvider) MsgCreateClient(
+func (cc *LBMProvider) MsgCreateClient(
 	clientState ibcexported.ClientState,
 	consensusState ibcexported.ConsensusState,
 ) (provider.RelayerMessage, error) {
@@ -312,10 +312,10 @@ func (cc *CosmosProvider) MsgCreateClient(
 		Signer:         signer,
 	}
 
-	return NewCosmosMessage(msg), nil
+	return NewLBMMessage(msg), nil
 }
 
-func (cc *CosmosProvider) MsgUpdateClient(srcClientId string, dstHeader ibcexported.Header) (provider.RelayerMessage, error) {
+func (cc *LBMProvider) MsgUpdateClient(srcClientId string, dstHeader ibcexported.Header) (provider.RelayerMessage, error) {
 	acc, err := cc.Address()
 	if err != nil {
 		return nil, err
@@ -332,10 +332,10 @@ func (cc *CosmosProvider) MsgUpdateClient(srcClientId string, dstHeader ibcexpor
 		Signer:   acc,
 	}
 
-	return NewCosmosMessage(msg), nil
+	return NewLBMMessage(msg), nil
 }
 
-func (cc *CosmosProvider) MsgUpgradeClient(srcClientId string, consRes *clienttypes.QueryConsensusStateResponse, clientRes *clienttypes.QueryClientStateResponse) (provider.RelayerMessage, error) {
+func (cc *LBMProvider) MsgUpgradeClient(srcClientId string, consRes *clienttypes.QueryConsensusStateResponse, clientRes *clienttypes.QueryClientStateResponse) (provider.RelayerMessage, error) {
 	var (
 		acc string
 		err error
@@ -343,7 +343,7 @@ func (cc *CosmosProvider) MsgUpgradeClient(srcClientId string, consRes *clientty
 	if acc, err = cc.Address(); err != nil {
 		return nil, err
 	}
-	return NewCosmosMessage(&clienttypes.MsgUpgradeClient{ClientId: srcClientId, ClientState: clientRes.ClientState,
+	return NewLBMMessage(&clienttypes.MsgUpgradeClient{ClientId: srcClientId, ClientState: clientRes.ClientState,
 		ConsensusState: consRes.ConsensusState, ProofUpgradeClient: consRes.GetProof(),
 		ProofUpgradeConsensusState: consRes.ConsensusState.Value, Signer: acc}), nil
 }
@@ -358,7 +358,7 @@ func mustGetHeight(h ibcexported.Height) clienttypes.Height {
 }
 
 // MsgTransfer creates a new transfer message
-func (cc *CosmosProvider) MsgTransfer(
+func (cc *LBMProvider) MsgTransfer(
 	dstAddr string,
 	amount sdk.Coin,
 	info provider.PacketInfo,
@@ -381,10 +381,10 @@ func (cc *CosmosProvider) MsgTransfer(
 		msg.TimeoutHeight = info.TimeoutHeight
 	}
 
-	return NewCosmosMessage(msg), nil
+	return NewLBMMessage(msg), nil
 }
 
-func (cc *CosmosProvider) ValidatePacket(msgTransfer provider.PacketInfo, latest provider.LatestBlock) error {
+func (cc *LBMProvider) ValidatePacket(msgTransfer provider.PacketInfo, latest provider.LatestBlock) error {
 	if msgTransfer.Sequence == 0 {
 		return errors.New("refusing to relay packet with sequence: 0")
 	}
@@ -411,7 +411,7 @@ func (cc *CosmosProvider) ValidatePacket(msgTransfer provider.PacketInfo, latest
 	return nil
 }
 
-func (cc *CosmosProvider) PacketCommitment(
+func (cc *LBMProvider) PacketCommitment(
 	ctx context.Context,
 	msgTransfer provider.PacketInfo,
 	height uint64,
@@ -432,7 +432,7 @@ func (cc *CosmosProvider) PacketCommitment(
 	}, nil
 }
 
-func (cc *CosmosProvider) MsgRecvPacket(
+func (cc *LBMProvider) MsgRecvPacket(
 	msgTransfer provider.PacketInfo,
 	proof provider.PacketProof,
 ) (provider.RelayerMessage, error) {
@@ -447,10 +447,10 @@ func (cc *CosmosProvider) MsgRecvPacket(
 		Signer:          signer,
 	}
 
-	return NewCosmosMessage(msg), nil
+	return NewLBMMessage(msg), nil
 }
 
-func (cc *CosmosProvider) PacketAcknowledgement(
+func (cc *LBMProvider) PacketAcknowledgement(
 	ctx context.Context,
 	msgRecvPacket provider.PacketInfo,
 	height uint64,
@@ -469,7 +469,7 @@ func (cc *CosmosProvider) PacketAcknowledgement(
 	}, nil
 }
 
-func (cc *CosmosProvider) MsgAcknowledgement(
+func (cc *LBMProvider) MsgAcknowledgement(
 	msgRecvPacket provider.PacketInfo,
 	proof provider.PacketProof,
 ) (provider.RelayerMessage, error) {
@@ -485,10 +485,10 @@ func (cc *CosmosProvider) MsgAcknowledgement(
 		Signer:          signer,
 	}
 
-	return NewCosmosMessage(msg), nil
+	return NewLBMMessage(msg), nil
 }
 
-func (cc *CosmosProvider) PacketReceipt(
+func (cc *LBMProvider) PacketReceipt(
 	ctx context.Context,
 	msgTransfer provider.PacketInfo,
 	height uint64,
@@ -508,7 +508,7 @@ func (cc *CosmosProvider) PacketReceipt(
 // NextSeqRecv queries for the appropriate Tendermint proof required to prove the next expected packet sequence number
 // for a given counterparty channel. This is used in ORDERED channels to ensure packets are being delivered in the
 // exact same order as they were sent over the wire.
-func (cc *CosmosProvider) NextSeqRecv(
+func (cc *LBMProvider) NextSeqRecv(
 	ctx context.Context,
 	msgTransfer provider.PacketInfo,
 	height uint64,
@@ -525,7 +525,7 @@ func (cc *CosmosProvider) NextSeqRecv(
 	}, nil
 }
 
-func (cc *CosmosProvider) MsgTimeout(msgTransfer provider.PacketInfo, proof provider.PacketProof) (provider.RelayerMessage, error) {
+func (cc *LBMProvider) MsgTimeout(msgTransfer provider.PacketInfo, proof provider.PacketProof) (provider.RelayerMessage, error) {
 	signer, err := cc.Address()
 	if err != nil {
 		return nil, err
@@ -538,10 +538,10 @@ func (cc *CosmosProvider) MsgTimeout(msgTransfer provider.PacketInfo, proof prov
 		Signer:           signer,
 	}
 
-	return NewCosmosMessage(assembled), nil
+	return NewLBMMessage(assembled), nil
 }
 
-func (cc *CosmosProvider) MsgTimeoutOnClose(msgTransfer provider.PacketInfo, proof provider.PacketProof) (provider.RelayerMessage, error) {
+func (cc *LBMProvider) MsgTimeoutOnClose(msgTransfer provider.PacketInfo, proof provider.PacketProof) (provider.RelayerMessage, error) {
 	signer, err := cc.Address()
 	if err != nil {
 		return nil, err
@@ -554,10 +554,10 @@ func (cc *CosmosProvider) MsgTimeoutOnClose(msgTransfer provider.PacketInfo, pro
 		Signer:           signer,
 	}
 
-	return NewCosmosMessage(assembled), nil
+	return NewLBMMessage(assembled), nil
 }
 
-func (cc *CosmosProvider) MsgConnectionOpenInit(info provider.ConnectionInfo, proof provider.ConnectionProof) (provider.RelayerMessage, error) {
+func (cc *LBMProvider) MsgConnectionOpenInit(info provider.ConnectionInfo, proof provider.ConnectionProof) (provider.RelayerMessage, error) {
 	signer, err := cc.Address()
 	if err != nil {
 		return nil, err
@@ -574,10 +574,10 @@ func (cc *CosmosProvider) MsgConnectionOpenInit(info provider.ConnectionInfo, pr
 		Signer:      signer,
 	}
 
-	return NewCosmosMessage(msg), nil
+	return NewLBMMessage(msg), nil
 }
 
-func (cc *CosmosProvider) ConnectionHandshakeProof(
+func (cc *LBMProvider) ConnectionHandshakeProof(
 	ctx context.Context,
 	msgOpenInit provider.ConnectionInfo,
 	height uint64,
@@ -604,7 +604,7 @@ func (cc *CosmosProvider) ConnectionHandshakeProof(
 	}, nil
 }
 
-func (cc *CosmosProvider) MsgConnectionOpenTry(msgOpenInit provider.ConnectionInfo, proof provider.ConnectionProof) (provider.RelayerMessage, error) {
+func (cc *LBMProvider) MsgConnectionOpenTry(msgOpenInit provider.ConnectionInfo, proof provider.ConnectionProof) (provider.RelayerMessage, error) {
 	signer, err := cc.Address()
 	if err != nil {
 		return nil, err
@@ -636,10 +636,10 @@ func (cc *CosmosProvider) MsgConnectionOpenTry(msgOpenInit provider.ConnectionIn
 		Signer:               signer,
 	}
 
-	return NewCosmosMessage(msg), nil
+	return NewLBMMessage(msg), nil
 }
 
-func (cc *CosmosProvider) MsgConnectionOpenAck(msgOpenTry provider.ConnectionInfo, proof provider.ConnectionProof) (provider.RelayerMessage, error) {
+func (cc *LBMProvider) MsgConnectionOpenAck(msgOpenTry provider.ConnectionInfo, proof provider.ConnectionProof) (provider.RelayerMessage, error) {
 	signer, err := cc.Address()
 	if err != nil {
 		return nil, err
@@ -666,10 +666,10 @@ func (cc *CosmosProvider) MsgConnectionOpenAck(msgOpenTry provider.ConnectionInf
 		Signer:          signer,
 	}
 
-	return NewCosmosMessage(msg), nil
+	return NewLBMMessage(msg), nil
 }
 
-func (cc *CosmosProvider) ConnectionProof(
+func (cc *LBMProvider) ConnectionProof(
 	ctx context.Context,
 	msgOpenAck provider.ConnectionInfo,
 	height uint64,
@@ -685,7 +685,7 @@ func (cc *CosmosProvider) ConnectionProof(
 	}, nil
 }
 
-func (cc *CosmosProvider) MsgConnectionOpenConfirm(msgOpenAck provider.ConnectionInfo, proof provider.ConnectionProof) (provider.RelayerMessage, error) {
+func (cc *LBMProvider) MsgConnectionOpenConfirm(msgOpenAck provider.ConnectionInfo, proof provider.ConnectionProof) (provider.RelayerMessage, error) {
 	signer, err := cc.Address()
 	if err != nil {
 		return nil, err
@@ -697,10 +697,10 @@ func (cc *CosmosProvider) MsgConnectionOpenConfirm(msgOpenAck provider.Connectio
 		Signer:       signer,
 	}
 
-	return NewCosmosMessage(msg), nil
+	return NewLBMMessage(msg), nil
 }
 
-func (cc *CosmosProvider) MsgChannelOpenInit(info provider.ChannelInfo, proof provider.ChannelProof) (provider.RelayerMessage, error) {
+func (cc *LBMProvider) MsgChannelOpenInit(info provider.ChannelInfo, proof provider.ChannelProof) (provider.RelayerMessage, error) {
 	signer, err := cc.Address()
 	if err != nil {
 		return nil, err
@@ -720,10 +720,10 @@ func (cc *CosmosProvider) MsgChannelOpenInit(info provider.ChannelInfo, proof pr
 		Signer: signer,
 	}
 
-	return NewCosmosMessage(msg), nil
+	return NewLBMMessage(msg), nil
 }
 
-func (cc *CosmosProvider) ChannelProof(
+func (cc *LBMProvider) ChannelProof(
 	ctx context.Context,
 	msg provider.ChannelInfo,
 	height uint64,
@@ -740,7 +740,7 @@ func (cc *CosmosProvider) ChannelProof(
 	}, nil
 }
 
-func (cc *CosmosProvider) MsgChannelOpenTry(msgOpenInit provider.ChannelInfo, proof provider.ChannelProof) (provider.RelayerMessage, error) {
+func (cc *LBMProvider) MsgChannelOpenTry(msgOpenInit provider.ChannelInfo, proof provider.ChannelProof) (provider.RelayerMessage, error) {
 	signer, err := cc.Address()
 	if err != nil {
 		return nil, err
@@ -767,10 +767,10 @@ func (cc *CosmosProvider) MsgChannelOpenTry(msgOpenInit provider.ChannelInfo, pr
 		Signer:              signer,
 	}
 
-	return NewCosmosMessage(msg), nil
+	return NewLBMMessage(msg), nil
 }
 
-func (cc *CosmosProvider) MsgChannelOpenAck(msgOpenTry provider.ChannelInfo, proof provider.ChannelProof) (provider.RelayerMessage, error) {
+func (cc *LBMProvider) MsgChannelOpenAck(msgOpenTry provider.ChannelInfo, proof provider.ChannelProof) (provider.RelayerMessage, error) {
 	signer, err := cc.Address()
 	if err != nil {
 		return nil, err
@@ -785,10 +785,10 @@ func (cc *CosmosProvider) MsgChannelOpenAck(msgOpenTry provider.ChannelInfo, pro
 		Signer:                signer,
 	}
 
-	return NewCosmosMessage(msg), nil
+	return NewLBMMessage(msg), nil
 }
 
-func (cc *CosmosProvider) MsgChannelOpenConfirm(msgOpenAck provider.ChannelInfo, proof provider.ChannelProof) (provider.RelayerMessage, error) {
+func (cc *LBMProvider) MsgChannelOpenConfirm(msgOpenAck provider.ChannelInfo, proof provider.ChannelProof) (provider.RelayerMessage, error) {
 	signer, err := cc.Address()
 	if err != nil {
 		return nil, err
@@ -801,10 +801,10 @@ func (cc *CosmosProvider) MsgChannelOpenConfirm(msgOpenAck provider.ChannelInfo,
 		Signer:      signer,
 	}
 
-	return NewCosmosMessage(msg), nil
+	return NewLBMMessage(msg), nil
 }
 
-func (cc *CosmosProvider) MsgChannelCloseInit(info provider.ChannelInfo, proof provider.ChannelProof) (provider.RelayerMessage, error) {
+func (cc *LBMProvider) MsgChannelCloseInit(info provider.ChannelInfo, proof provider.ChannelProof) (provider.RelayerMessage, error) {
 	signer, err := cc.Address()
 	if err != nil {
 		return nil, err
@@ -815,10 +815,10 @@ func (cc *CosmosProvider) MsgChannelCloseInit(info provider.ChannelInfo, proof p
 		Signer:    signer,
 	}
 
-	return NewCosmosMessage(msg), nil
+	return NewLBMMessage(msg), nil
 }
 
-func (cc *CosmosProvider) MsgChannelCloseConfirm(msgCloseInit provider.ChannelInfo, proof provider.ChannelProof) (provider.RelayerMessage, error) {
+func (cc *LBMProvider) MsgChannelCloseConfirm(msgCloseInit provider.ChannelInfo, proof provider.ChannelProof) (provider.RelayerMessage, error) {
 	signer, err := cc.Address()
 	if err != nil {
 		return nil, err
@@ -831,28 +831,28 @@ func (cc *CosmosProvider) MsgChannelCloseConfirm(msgCloseInit provider.ChannelIn
 		Signer:      signer,
 	}
 
-	return NewCosmosMessage(msg), nil
+	return NewLBMMessage(msg), nil
 }
 
-func (cc *CosmosProvider) MsgUpdateClientHeader(latestHeader provider.IBCHeader, trustedHeight clienttypes.Height, trustedHeader provider.IBCHeader) (ibcexported.Header, error) {
-	trustedCosmosHeader, ok := trustedHeader.(CosmosIBCHeader)
+func (cc *LBMProvider) MsgUpdateClientHeader(latestHeader provider.IBCHeader, trustedHeight clienttypes.Height, trustedHeader provider.IBCHeader) (ibcexported.Header, error) {
+	trustedLBMHeader, ok := trustedHeader.(LBMIBCHeader)
 	if !ok {
-		return nil, fmt.Errorf("unsupported IBC trusted header type, expected: CosmosIBCHeader, actual: %T", trustedHeader)
+		return nil, fmt.Errorf("unsupported IBC trusted header type, expected: LBMIBCHeader, actual: %T", trustedHeader)
 	}
 
-	latestCosmosHeader, ok := latestHeader.(CosmosIBCHeader)
+	latestLBMHeader, ok := latestHeader.(LBMIBCHeader)
 	if !ok {
-		return nil, fmt.Errorf("unsupported IBC header type, expected: CosmosIBCHeader, actual: %T", latestHeader)
+		return nil, fmt.Errorf("unsupported IBC header type, expected: LBMIBCHeader, actual: %T", latestHeader)
 	}
 
-	trustedValidatorsProto, err := trustedCosmosHeader.ValidatorSet.ToProto()
+	trustedValidatorsProto, err := trustedLBMHeader.ValidatorSet.ToProto()
 	if err != nil {
 		return nil, fmt.Errorf("error converting trusted validators to proto object: %w", err)
 	}
 
-	signedHeaderProto := latestCosmosHeader.SignedHeader.ToProto()
+	signedHeaderProto := latestLBMHeader.SignedHeader.ToProto()
 
-	validatorSetProto, err := latestCosmosHeader.ValidatorSet.ToProto()
+	validatorSetProto, err := latestLBMHeader.ValidatorSet.ToProto()
 	if err != nil {
 		return nil, fmt.Errorf("error converting validator set to proto object: %w", err)
 	}
@@ -866,7 +866,7 @@ func (cc *CosmosProvider) MsgUpdateClientHeader(latestHeader provider.IBCHeader,
 }
 
 // RelayPacketFromSequence relays a packet with a given seq on src and returns recvPacket msgs, timeoutPacketmsgs and error
-func (cc *CosmosProvider) RelayPacketFromSequence(
+func (cc *LBMProvider) RelayPacketFromSequence(
 	ctx context.Context,
 	src provider.ChainProvider,
 	srch, dsth, seq uint64,
@@ -934,7 +934,7 @@ func (cc *CosmosProvider) RelayPacketFromSequence(
 }
 
 // AcknowledgementFromSequence relays an acknowledgement with a given seq on src, source is the sending chain, destination is the receiving chain
-func (cc *CosmosProvider) AcknowledgementFromSequence(ctx context.Context, dst provider.ChainProvider, dsth, seq uint64, dstChanId, dstPortId, srcChanId, srcPortId string) (provider.RelayerMessage, error) {
+func (cc *LBMProvider) AcknowledgementFromSequence(ctx context.Context, dst provider.ChainProvider, dsth, seq uint64, dstChanId, dstPortId, srcChanId, srcPortId string) (provider.RelayerMessage, error) {
 	msgRecvPacket, err := dst.QueryRecvPacket(ctx, dstChanId, dstPortId, seq)
 	if err != nil {
 		return nil, err
@@ -951,8 +951,8 @@ func (cc *CosmosProvider) AcknowledgementFromSequence(ctx context.Context, dst p
 	return msg, nil
 }
 
-// QueryIBCHeader returns the IBC compatible block header (CosmosIBCHeader) at a specific height.
-func (cc *CosmosProvider) QueryIBCHeader(ctx context.Context, h int64) (provider.IBCHeader, error) {
+// QueryIBCHeader returns the IBC compatible block header (LBMIBCHeader) at a specific height.
+func (cc *LBMProvider) QueryIBCHeader(ctx context.Context, h int64) (provider.IBCHeader, error) {
 	if h == 0 {
 		return nil, fmt.Errorf("height cannot be 0")
 	}
@@ -962,7 +962,7 @@ func (cc *CosmosProvider) QueryIBCHeader(ctx context.Context, h int64) (provider
 		return nil, err
 	}
 
-	return CosmosIBCHeader{
+	return LBMIBCHeader{
 		SignedHeader: lightBlock.SignedHeader,
 		ValidatorSet: lightBlock.ValidatorSet,
 	}, nil
@@ -974,7 +974,7 @@ func (cc *CosmosProvider) QueryIBCHeader(ctx context.Context, h int64) (provider
 // TrustedHeight is the latest height of the IBC client on dst
 // TrustedValidators is the validator set of srcChain at the TrustedHeight
 // InjectTrustedFields returns a copy of the header with TrustedFields modified
-func (cc *CosmosProvider) InjectTrustedFields(ctx context.Context, header ibcexported.Header, dst provider.ChainProvider, dstClientId string) (ibcexported.Header, error) {
+func (cc *LBMProvider) InjectTrustedFields(ctx context.Context, header ibcexported.Header, dst provider.ChainProvider, dstClientId string) (ibcexported.Header, error) {
 	// make copy of header stored in mop
 	h, ok := header.(*tmclient.Header)
 	if !ok {
@@ -1004,7 +1004,7 @@ func (cc *CosmosProvider) InjectTrustedFields(ctx context.Context, header ibcexp
 			return err
 		}
 
-		trustedValidators = ibcHeader.(CosmosIBCHeader).ValidatorSet
+		trustedValidators = ibcHeader.(LBMIBCHeader).ValidatorSet
 		return err
 	}, retry.Context(ctx), rtyAtt, rtyDel, rtyErr); err != nil {
 		return nil, fmt.Errorf(
@@ -1025,7 +1025,7 @@ func (cc *CosmosProvider) InjectTrustedFields(ctx context.Context, header ibcexp
 
 // queryTMClientState retrieves the latest consensus state for a client in state at a given height
 // and unpacks/cast it to tendermint clientstate
-func (cc *CosmosProvider) queryTMClientState(ctx context.Context, srch int64, srcClientId string) (*tmclient.ClientState, error) {
+func (cc *LBMProvider) queryTMClientState(ctx context.Context, srch int64, srcClientId string) (*tmclient.ClientState, error) {
 	clientStateRes, err := cc.QueryClientStateResponse(ctx, srch, srcClientId)
 	if err != nil {
 		return &tmclient.ClientState{}, err
@@ -1055,7 +1055,7 @@ func castClientStateToTMType(cs *codectypes.Any) (*tmclient.ClientState, error) 
 var defaultUpgradePath = []string{"upgrade", "upgradedIBCState"}
 
 // NewClientState creates a new tendermint client state tracking the dst chain.
-func (cc *CosmosProvider) NewClientState(
+func (cc *LBMProvider) NewClientState(
 	dstChainID string,
 	dstUpdateHeader provider.IBCHeader,
 	dstTrustingPeriod,
@@ -1084,7 +1084,7 @@ func (cc *CosmosProvider) NewClientState(
 	}, nil
 }
 
-func (cc *CosmosProvider) UpdateFeesSpent(chain, key string, fees sdk.Coins) {
+func (cc *LBMProvider) UpdateFeesSpent(chain, key string, fees sdk.Coins) {
 	// Don't set the metrics in testing
 	if cc.metrics == nil {
 		return

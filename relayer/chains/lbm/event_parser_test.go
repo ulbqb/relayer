@@ -1,4 +1,4 @@
-package cosmos
+package lbm
 
 import (
 	"encoding/hex"
