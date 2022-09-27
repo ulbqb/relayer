@@ -1,0 +1,10 @@
+#!/bin/bash
+
+LBMSDKDIR="$(pwd)/chain-code/lbm-sdk"
+
+[ ! -d "$LBMSDKDIR" ] && echo "Repositry for lbm-sdk does not exist at $LBMSDKDIR. Try running 'make get-lbm-sdk'..." && exit 1
+
+cd $LBMSDKDIR
+echo "Building simd binary at branch($(git branch --show-current)) tag($(git describe --tags)) commit($(git rev-parse HEAD))"
+make install &> /dev/null
+simd version --long

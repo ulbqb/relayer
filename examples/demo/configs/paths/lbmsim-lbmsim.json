@@ -1,0 +1,12 @@
+{
+  "src": {
+    "chain-id": "lbmsim-0"
+  },
+  "dst": {
+    "chain-id": "lbmsim-1"
+  },
+  "src-channel-filter": {
+    "rule": null,
+    "channel-list": []
+  }
+}
