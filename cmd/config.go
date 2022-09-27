@@ -31,6 +31,7 @@ import (
 
 	"github.com/cosmos/relayer/v2/relayer"
 	"github.com/cosmos/relayer/v2/relayer/chains/cosmos"
+	"github.com/cosmos/relayer/v2/relayer/chains/lbm"
 	"github.com/cosmos/relayer/v2/relayer/provider"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -341,6 +342,7 @@ type ProviderConfigYAMLWrapper struct {
 func (pcw *ProviderConfigWrapper) UnmarshalJSON(data []byte) error {
 	customTypes := map[string]reflect.Type{
 		"cosmos": reflect.TypeOf(cosmos.CosmosProviderConfig{}),
+		"lbm":    reflect.TypeOf(lbm.LBMProviderConfig{}),
 	}
 	val, err := UnmarshalJSONProviderConfig(data, customTypes)
 	if err != nil {
@@ -393,6 +395,8 @@ func (iw *ProviderConfigYAMLWrapper) UnmarshalYAML(n *yaml.Node) error {
 	switch iw.Type {
 	case "cosmos":
 		iw.Value = new(cosmos.CosmosProviderConfig)
+	case "lbm":
+		iw.Value = new(lbm.LBMProviderConfig)
 	default:
 		return fmt.Errorf("%s is an invalid chain type, check your config file", iw.Type)
 	}

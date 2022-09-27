@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/cosmos/relayer/v2/relayer/chains/cosmos"
+	"github.com/cosmos/relayer/v2/relayer/chains/lbm"
 	"github.com/cosmos/relayer/v2/relayer/provider"
 	"go.uber.org/zap"
 
@@ -17,6 +18,11 @@ func logFailedTx(log *zap.Logger, chainID string, res *provider.RelayerTxRespons
 		// TODO add case here for other implementations of provider.RelayerMessage
 		switch m := msg.(type) {
 		case cosmos.CosmosMessage:
+			fields[i+1] = zap.Object(
+				fmt.Sprintf("msg-%d", i),
+				m,
+			)
+		case lbm.LBMMessage:
 			fields[i+1] = zap.Object(
 				fmt.Sprintf("msg-%d", i),
 				m,

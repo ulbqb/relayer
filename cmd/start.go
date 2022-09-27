@@ -27,6 +27,7 @@ import (
 	"github.com/cosmos/relayer/v2/internal/relaydebug"
 	"github.com/cosmos/relayer/v2/relayer"
 	"github.com/cosmos/relayer/v2/relayer/chains/cosmos"
+	"github.com/cosmos/relayer/v2/relayer/chains/lbm"
 	"github.com/cosmos/relayer/v2/relayer/processor"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -99,6 +100,9 @@ $ %s start demo-path2 --max-tx-size 10`, appName, appName, appName)),
 				prometheusMetrics = processor.NewPrometheusMetrics()
 				for _, chain := range chains {
 					if ccp, ok := chain.ChainProvider.(*cosmos.CosmosProvider); ok {
+						ccp.SetMetrics(prometheusMetrics)
+					}
+					if ccp, ok := chain.ChainProvider.(*lbm.LBMProvider); ok {
 						ccp.SetMetrics(prometheusMetrics)
 					}
 				}
