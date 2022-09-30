@@ -870,7 +870,17 @@ func (cc *LBMProvider) QueryHeaderAtHeight(ctx context.Context, height int64) (i
 		return nil, err
 	}
 
+	voter, err := cc.LBMChainClient.RPCClient.Voters(ctx, &height, &page, &perPage)
+	if err != nil {
+		return nil, err
+	}
+
 	protoVal, err := octypes.NewValidatorSet(val.Validators).ToProto()
+	if err != nil {
+		return nil, err
+	}
+
+	protoVoter, err := octypes.ToVoterAll(voter.Voters).ToProto()
 	if err != nil {
 		return nil, err
 	}
@@ -880,6 +890,7 @@ func (cc *LBMProvider) QueryHeaderAtHeight(ctx context.Context, height int64) (i
 		// We are missing a light.Commit type here
 		SignedHeader: res.SignedHeader.ToProto(),
 		ValidatorSet: protoVal,
+		VoterSet:     protoVoter,
 	}, nil
 }
 

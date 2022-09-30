@@ -857,11 +857,23 @@ func (cc *LBMProvider) MsgUpdateClientHeader(latestHeader provider.IBCHeader, tr
 		return nil, fmt.Errorf("error converting validator set to proto object: %w", err)
 	}
 
+	trustedVotersProto, err := trustedLBMHeader.VoterSet.ToProto()
+	if err != nil {
+		return nil, fmt.Errorf("error converting trusted voters to proto object: %w", err)
+	}
+
+	voterSetProto, err := latestLBMHeader.VoterSet.ToProto()
+	if err != nil {
+		return nil, fmt.Errorf("error converting voter set to proto object: %w", err)
+	}
+
 	return &occlient.Header{
 		SignedHeader:      signedHeaderProto,
 		ValidatorSet:      validatorSetProto,
 		TrustedValidators: trustedValidatorsProto,
 		TrustedHeight:     trustedHeight,
+		VoterSet:          voterSetProto,
+		TrustedVoters:     trustedVotersProto,
 	}, nil
 }
 
@@ -965,6 +977,7 @@ func (cc *LBMProvider) QueryIBCHeader(ctx context.Context, h int64) (provider.IB
 	return LBMIBCHeader{
 		SignedHeader: lightBlock.SignedHeader,
 		ValidatorSet: lightBlock.ValidatorSet,
+		VoterSet:     lightBlock.VoterSet,
 	}, nil
 }
 
@@ -998,6 +1011,7 @@ func (cc *LBMProvider) InjectTrustedFields(ctx context.Context, header ibcexport
 	// TODO: this is likely a source of off by 1 errors but may be impossible to change? Maybe this is the
 	// place where we need to fix the upstream query proof issue?
 	var trustedValidators *octypes.ValidatorSet
+	var trustedVoters *octypes.VoterSet
 	if err := retry.Do(func() error {
 		ibcHeader, err := cc.QueryIBCHeader(ctx, int64(h.TrustedHeight.RevisionHeight+1))
 		if err != nil {
@@ -1005,6 +1019,7 @@ func (cc *LBMProvider) InjectTrustedFields(ctx context.Context, header ibcexport
 		}
 
 		trustedValidators = ibcHeader.(LBMIBCHeader).ValidatorSet
+		trustedVoters = ibcHeader.(LBMIBCHeader).VoterSet
 		return err
 	}, retry.Context(ctx), rtyAtt, rtyDel, rtyErr); err != nil {
 		return nil, fmt.Errorf(
@@ -1013,13 +1028,19 @@ func (cc *LBMProvider) InjectTrustedFields(ctx context.Context, header ibcexport
 		)
 	}
 
-	tvProto, err := trustedValidators.ToProto()
+	tValProto, err := trustedValidators.ToProto()
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert trusted validators to proto: %w", err)
 	}
 
+	tVoterProto, err := trustedVoters.ToProto()
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert trusted voters to proto: %w", err)
+	}
+
 	// inject TrustedValidators into header
-	h.TrustedValidators = tvProto
+	h.TrustedValidators = tValProto
+	h.TrustedVoters = tVoterProto
 	return h, nil
 }
 

@@ -116,6 +116,7 @@ type LBMProvider struct {
 type LBMIBCHeader struct {
 	SignedHeader *octypes.SignedHeader
 	ValidatorSet *octypes.ValidatorSet
+	VoterSet     *octypes.VoterSet
 }
 
 func (h LBMIBCHeader) Height() uint64 {
