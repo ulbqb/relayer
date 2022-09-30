@@ -21,10 +21,10 @@ import (
 	commitmenttypes "github.com/cosmos/ibc-go/v5/modules/core/23-commitment/types"
 	host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
 	ibcexported "github.com/cosmos/ibc-go/v5/modules/core/exported"
-	tmclient "github.com/cosmos/ibc-go/v5/modules/light-clients/07-tendermint/types"
+	occlient "github.com/cosmos/ibc-go/v5/modules/light-clients/99-ostracon/types"
 	"github.com/cosmos/relayer/v2/relayer/provider"
-	"github.com/tendermint/tendermint/light"
-	tmtypes "github.com/tendermint/tendermint/types"
+	"github.com/line/ostracon/light"
+	octypes "github.com/line/ostracon/types"
 	"go.uber.org/zap"
 )
 
@@ -857,7 +857,7 @@ func (cc *LBMProvider) MsgUpdateClientHeader(latestHeader provider.IBCHeader, tr
 		return nil, fmt.Errorf("error converting validator set to proto object: %w", err)
 	}
 
-	return &tmclient.Header{
+	return &occlient.Header{
 		SignedHeader:      signedHeaderProto,
 		ValidatorSet:      validatorSetProto,
 		TrustedValidators: trustedValidatorsProto,
@@ -957,7 +957,7 @@ func (cc *LBMProvider) QueryIBCHeader(ctx context.Context, h int64) (provider.IB
 		return nil, fmt.Errorf("height cannot be 0")
 	}
 
-	lightBlock, err := cc.LightProvider.LightBlock(ctx, h)
+	lightBlock, err := cc.LBMChainClient.LightProvider.LightBlock(ctx, h)
 	if err != nil {
 		return nil, err
 	}
@@ -976,7 +976,7 @@ func (cc *LBMProvider) QueryIBCHeader(ctx context.Context, h int64) (provider.IB
 // InjectTrustedFields returns a copy of the header with TrustedFields modified
 func (cc *LBMProvider) InjectTrustedFields(ctx context.Context, header ibcexported.Header, dst provider.ChainProvider, dstClientId string) (ibcexported.Header, error) {
 	// make copy of header stored in mop
-	h, ok := header.(*tmclient.Header)
+	h, ok := header.(*occlient.Header)
 	if !ok {
 		return nil, fmt.Errorf("trying to inject fields into non-tendermint headers")
 	}
@@ -997,7 +997,7 @@ func (cc *LBMProvider) InjectTrustedFields(ctx context.Context, header ibcexport
 
 	// TODO: this is likely a source of off by 1 errors but may be impossible to change? Maybe this is the
 	// place where we need to fix the upstream query proof issue?
-	var trustedValidators *tmtypes.ValidatorSet
+	var trustedValidators *octypes.ValidatorSet
 	if err := retry.Do(func() error {
 		ibcHeader, err := cc.QueryIBCHeader(ctx, int64(h.TrustedHeight.RevisionHeight+1))
 		if err != nil {
@@ -1025,26 +1025,26 @@ func (cc *LBMProvider) InjectTrustedFields(ctx context.Context, header ibcexport
 
 // queryTMClientState retrieves the latest consensus state for a client in state at a given height
 // and unpacks/cast it to tendermint clientstate
-func (cc *LBMProvider) queryTMClientState(ctx context.Context, srch int64, srcClientId string) (*tmclient.ClientState, error) {
+func (cc *LBMProvider) queryTMClientState(ctx context.Context, srch int64, srcClientId string) (*occlient.ClientState, error) {
 	clientStateRes, err := cc.QueryClientStateResponse(ctx, srch, srcClientId)
 	if err != nil {
-		return &tmclient.ClientState{}, err
+		return &occlient.ClientState{}, err
 	}
 
 	return castClientStateToTMType(clientStateRes.ClientState)
 }
 
 // castClientStateToTMType casts client state to tendermint type
-func castClientStateToTMType(cs *codectypes.Any) (*tmclient.ClientState, error) {
+func castClientStateToTMType(cs *codectypes.Any) (*occlient.ClientState, error) {
 	clientStateExported, err := clienttypes.UnpackClientState(cs)
 	if err != nil {
-		return &tmclient.ClientState{}, err
+		return &occlient.ClientState{}, err
 	}
 
 	// cast from interface to concrete type
-	clientState, ok := clientStateExported.(*tmclient.ClientState)
+	clientState, ok := clientStateExported.(*occlient.ClientState)
 	if !ok {
-		return &tmclient.ClientState{},
+		return &occlient.ClientState{},
 			fmt.Errorf("error when casting exported clientstate to tendermint type")
 	}
 
@@ -1066,9 +1066,9 @@ func (cc *LBMProvider) NewClientState(
 	revisionNumber := clienttypes.ParseChainID(dstChainID)
 
 	// Create the ClientState we want on 'c' tracking 'dst'
-	return &tmclient.ClientState{
+	return &occlient.ClientState{
 		ChainId:         dstChainID,
-		TrustLevel:      tmclient.NewFractionFromTm(light.DefaultTrustLevel),
+		TrustLevel:      occlient.NewFractionFromTm(light.DefaultTrustLevel),
 		TrustingPeriod:  dstTrustingPeriod,
 		UnbondingPeriod: dstUbdPeriod,
 		MaxClockDrift:   time.Minute * 10,

@@ -11,12 +11,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	commitmenttypes "github.com/cosmos/ibc-go/v5/modules/core/23-commitment/types"
 	ibcexported "github.com/cosmos/ibc-go/v5/modules/core/exported"
-	tmclient "github.com/cosmos/ibc-go/v5/modules/light-clients/07-tendermint/types"
+	occlient "github.com/cosmos/ibc-go/v5/modules/light-clients/99-ostracon/types"
 	"github.com/cosmos/relayer/v2/relayer/processor"
 	"github.com/cosmos/relayer/v2/relayer/provider"
 	"github.com/gogo/protobuf/proto"
+	octypes "github.com/line/ostracon/types"
 	lens "github.com/strangelove-ventures/lens/client"
-	tmtypes "github.com/tendermint/tendermint/types"
 	"go.uber.org/zap"
 )
 
@@ -64,12 +64,18 @@ func (pc LBMProviderConfig) NewProvider(log *zap.Logger, homepath string, debug 
 	if err != nil {
 		return nil, err
 	}
+	lcc, err := NewChainClient(&pc)
+	if err != nil {
+		return nil, err
+	}
+
 	pc.ChainName = chainName
 
 	return &LBMProvider{
-		log:         log,
-		ChainClient: *cc,
-		PCfg:        pc,
+		log:            log,
+		ChainClient:    *cc,
+		LBMChainClient: *lcc,
+		PCfg:           pc,
 	}, nil
 }
 
@@ -97,7 +103,8 @@ type LBMProvider struct {
 	log *zap.Logger
 
 	lens.ChainClient
-	PCfg LBMProviderConfig
+	LBMChainClient ChainClient
+	PCfg           LBMProviderConfig
 
 	// metrics to monitor the provider
 	TotalFees   sdk.Coins
@@ -107,8 +114,8 @@ type LBMProvider struct {
 }
 
 type LBMIBCHeader struct {
-	SignedHeader *tmtypes.SignedHeader
-	ValidatorSet *tmtypes.ValidatorSet
+	SignedHeader *octypes.SignedHeader
+	ValidatorSet *octypes.ValidatorSet
 }
 
 func (h LBMIBCHeader) Height() uint64 {
@@ -116,7 +123,7 @@ func (h LBMIBCHeader) Height() uint64 {
 }
 
 func (h LBMIBCHeader) ConsensusState() ibcexported.ConsensusState {
-	return &tmclient.ConsensusState{
+	return &occlient.ConsensusState{
 		Timestamp:          h.SignedHeader.Time,
 		Root:               commitmenttypes.NewMerkleRoot(h.SignedHeader.AppHash),
 		NextValidatorsHash: h.ValidatorSet.Hash(),
@@ -136,7 +143,7 @@ func (cc *LBMProvider) ChainName() string {
 }
 
 func (cc *LBMProvider) Type() string {
-	return "cosmos"
+	return "lbm"
 }
 
 func (cc *LBMProvider) Key() string {
@@ -214,7 +221,7 @@ func (cc *LBMProvider) Sprint(toPrint proto.Message) (string, error) {
 // WaitForNBlocks blocks until the next block on a given chain
 func (cc *LBMProvider) WaitForNBlocks(ctx context.Context, n int64) error {
 	var initial int64
-	h, err := cc.RPCClient.Status(ctx)
+	h, err := cc.LBMChainClient.RPCClient.Status(ctx)
 	if err != nil {
 		return err
 	}
@@ -223,7 +230,7 @@ func (cc *LBMProvider) WaitForNBlocks(ctx context.Context, n int64) error {
 	}
 	initial = h.SyncInfo.LatestBlockHeight
 	for {
-		h, err = cc.RPCClient.Status(ctx)
+		h, err = cc.LBMChainClient.RPCClient.Status(ctx)
 		if err != nil {
 			return err
 		}
@@ -240,7 +247,7 @@ func (cc *LBMProvider) WaitForNBlocks(ctx context.Context, n int64) error {
 }
 
 func (cc *LBMProvider) BlockTime(ctx context.Context, height int64) (time.Time, error) {
-	resultBlock, err := cc.RPCClient.Block(ctx, &height)
+	resultBlock, err := cc.LBMChainClient.RPCClient.Block(ctx, &height)
 	if err != nil {
 		return time.Time{}, err
 	}
