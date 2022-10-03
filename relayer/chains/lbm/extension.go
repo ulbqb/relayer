@@ -139,7 +139,7 @@ func SDKDotStringifyEvent(e abci.Event) sdk.StringEvent {
 
 func CommitmenttypesDotConvertProofs(tmProof *crypto.ProofOps) (commitmenttypes.MerkleProof, error) {
 	if tmProof == nil {
-		return commitmenttypes.MerkleProof{}, sdkerrors.Wrapf(commitmenttypes.ErrInvalidMerkleProof, "tendermint proof is nil")
+		return commitmenttypes.MerkleProof{}, sdkerrors.Wrapf(commitmenttypes.ErrInvalidMerkleProof, "ostracon proof is nil")
 	}
 	// Unmarshal all proof ops to CommitmentProof
 	proofs := make([]*ics23.CommitmentProof, len(tmProof.Ops))

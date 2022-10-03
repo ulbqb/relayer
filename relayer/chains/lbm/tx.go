@@ -82,9 +82,9 @@ func (cc *LBMProvider) SendMessages(ctx context.Context, msgs []provider.Relayer
 
 			// Occasionally the client will be out of date,
 			// and we will receive an RPC error like:
-			//     rpc error: code = InvalidArgument desc = failed to execute message; message index: 1: channel handshake open try failed: failed channel state verification for client (07-tendermint-0): client state height < proof height ({0 58} < {0 59}), please ensure the client has been updated: invalid height: invalid request
+			//     rpc error: code = InvalidArgument desc = failed to execute message; message index: 1: channel handshake open try failed: failed channel state verification for client (99-ostracon-0): client state height < proof height ({0 58} < {0 59}), please ensure the client has been updated: invalid height: invalid request
 			// or
-			//     rpc error: code = InvalidArgument desc = failed to execute message; message index: 1: receive packet verification failed: couldn't verify counterparty packet commitment: failed packet commitment verification for client (07-tendermint-0): client state height < proof height ({0 142} < {0 143}), please ensure the client has been updated: invalid height: invalid request
+			//     rpc error: code = InvalidArgument desc = failed to execute message; message index: 1: receive packet verification failed: couldn't verify counterparty packet commitment: failed packet commitment verification for client (99-ostracon-0): client state height < proof height ({0 142} < {0 143}), please ensure the client has been updated: invalid height: invalid request
 			//
 			// No amount of retrying will fix this. The client needs to be updated.
 			// Unfortunately, the entirety of that error message originates on the server,
@@ -417,9 +417,9 @@ func (cc *LBMProvider) PacketCommitment(
 	height uint64,
 ) (provider.PacketProof, error) {
 	key := host.PacketCommitmentKey(msgTransfer.SourcePort, msgTransfer.SourceChannel, msgTransfer.Sequence)
-	commitment, proof, proofHeight, err := cc.QueryTendermintProof(ctx, int64(height), key)
+	commitment, proof, proofHeight, err := cc.QueryOstraconProof(ctx, int64(height), key)
 	if err != nil {
-		return provider.PacketProof{}, fmt.Errorf("error querying tendermint proof for packet commitment: %w", err)
+		return provider.PacketProof{}, fmt.Errorf("error querying ostracon proof for packet commitment: %w", err)
 	}
 	// check if packet commitment exists
 	if len(commitment) == 0 {
@@ -456,9 +456,9 @@ func (cc *LBMProvider) PacketAcknowledgement(
 	height uint64,
 ) (provider.PacketProof, error) {
 	key := host.PacketAcknowledgementKey(msgRecvPacket.DestPort, msgRecvPacket.DestChannel, msgRecvPacket.Sequence)
-	ack, proof, proofHeight, err := cc.QueryTendermintProof(ctx, int64(height), key)
+	ack, proof, proofHeight, err := cc.QueryOstraconProof(ctx, int64(height), key)
 	if err != nil {
-		return provider.PacketProof{}, fmt.Errorf("error querying tendermint proof for packet acknowledgement: %w", err)
+		return provider.PacketProof{}, fmt.Errorf("error querying ostracon proof for packet acknowledgement: %w", err)
 	}
 	if len(ack) == 0 {
 		return provider.PacketProof{}, chantypes.ErrInvalidAcknowledgement
@@ -494,9 +494,9 @@ func (cc *LBMProvider) PacketReceipt(
 	height uint64,
 ) (provider.PacketProof, error) {
 	key := host.PacketReceiptKey(msgTransfer.DestPort, msgTransfer.DestChannel, msgTransfer.Sequence)
-	_, proof, proofHeight, err := cc.QueryTendermintProof(ctx, int64(height), key)
+	_, proof, proofHeight, err := cc.QueryOstraconProof(ctx, int64(height), key)
 	if err != nil {
-		return provider.PacketProof{}, fmt.Errorf("error querying tendermint proof for packet receipt: %w", err)
+		return provider.PacketProof{}, fmt.Errorf("error querying ostracon proof for packet receipt: %w", err)
 	}
 
 	return provider.PacketProof{
@@ -505,7 +505,7 @@ func (cc *LBMProvider) PacketReceipt(
 	}, nil
 }
 
-// NextSeqRecv queries for the appropriate Tendermint proof required to prove the next expected packet sequence number
+// NextSeqRecv queries for the appropriate Ostracon proof required to prove the next expected packet sequence number
 // for a given counterparty channel. This is used in ORDERED channels to ensure packets are being delivered in the
 // exact same order as they were sent over the wire.
 func (cc *LBMProvider) NextSeqRecv(
@@ -514,9 +514,9 @@ func (cc *LBMProvider) NextSeqRecv(
 	height uint64,
 ) (provider.PacketProof, error) {
 	key := host.NextSequenceRecvKey(msgTransfer.DestPort, msgTransfer.DestChannel)
-	_, proof, proofHeight, err := cc.QueryTendermintProof(ctx, int64(height), key)
+	_, proof, proofHeight, err := cc.QueryOstraconProof(ctx, int64(height), key)
 	if err != nil {
-		return provider.PacketProof{}, fmt.Errorf("error querying tendermint proof for next sequence receive: %w", err)
+		return provider.PacketProof{}, fmt.Errorf("error querying ostracon proof for next sequence receive: %w", err)
 	}
 
 	return provider.PacketProof{
@@ -991,7 +991,7 @@ func (cc *LBMProvider) InjectTrustedFields(ctx context.Context, header ibcexport
 	// make copy of header stored in mop
 	h, ok := header.(*occlient.Header)
 	if !ok {
-		return nil, fmt.Errorf("trying to inject fields into non-tendermint headers")
+		return nil, fmt.Errorf("trying to inject fields into non-ostracon headers")
 	}
 
 	// retrieve dst client from src chain
@@ -1045,7 +1045,7 @@ func (cc *LBMProvider) InjectTrustedFields(ctx context.Context, header ibcexport
 }
 
 // queryTMClientState retrieves the latest consensus state for a client in state at a given height
-// and unpacks/cast it to tendermint clientstate
+// and unpacks/cast it to ostracon clientstate
 func (cc *LBMProvider) queryTMClientState(ctx context.Context, srch int64, srcClientId string) (*occlient.ClientState, error) {
 	clientStateRes, err := cc.QueryClientStateResponse(ctx, srch, srcClientId)
 	if err != nil {
@@ -1055,7 +1055,7 @@ func (cc *LBMProvider) queryTMClientState(ctx context.Context, srch int64, srcCl
 	return castClientStateToTMType(clientStateRes.ClientState)
 }
 
-// castClientStateToTMType casts client state to tendermint type
+// castClientStateToTMType casts client state to ostracon type
 func castClientStateToTMType(cs *codectypes.Any) (*occlient.ClientState, error) {
 	clientStateExported, err := clienttypes.UnpackClientState(cs)
 	if err != nil {
@@ -1066,7 +1066,7 @@ func castClientStateToTMType(cs *codectypes.Any) (*occlient.ClientState, error) 
 	clientState, ok := clientStateExported.(*occlient.ClientState)
 	if !ok {
 		return &occlient.ClientState{},
-			fmt.Errorf("error when casting exported clientstate to tendermint type")
+			fmt.Errorf("error when casting exported clientstate to ostracon type")
 	}
 
 	return clientState, nil
@@ -1075,7 +1075,7 @@ func castClientStateToTMType(cs *codectypes.Any) (*occlient.ClientState, error) 
 //DefaultUpgradePath is the default IBC upgrade path set for an on-chain light client
 var defaultUpgradePath = []string{"upgrade", "upgradedIBCState"}
 
-// NewClientState creates a new tendermint client state tracking the dst chain.
+// NewClientState creates a new ostracon client state tracking the dst chain.
 func (cc *LBMProvider) NewClientState(
 	dstChainID string,
 	dstUpdateHeader provider.IBCHeader,

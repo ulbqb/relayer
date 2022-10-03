@@ -173,16 +173,16 @@ func (cc *LBMProvider) QueryUnbondingPeriod(ctx context.Context) (time.Duration,
 	return res.Params.UnbondingTime, nil
 }
 
-// QueryTendermintProof performs an ABCI query with the given key and returns
+// QueryOstraconProof performs an ABCI query with the given key and returns
 // the value of the query, the proto encoded merkle proof, and the height of
-// the Tendermint block containing the state root. The desired tendermint height
+// the Ostracon block containing the state root. The desired ostracon height
 // to perform the query should be set in the client context. The query will be
 // performed at one below this height (at the IAVL version) in order to obtain
 // the correct merkle proof. Proof queries at height less than or equal to 2 are
 // not supported. Queries with a client context height of 0 will perform a query
 // at the latest state available.
 // Issue: https://github.com/cosmos/cosmos-sdk/issues/6567
-func (cc *LBMProvider) QueryTendermintProof(ctx context.Context, height int64, key []byte) ([]byte, []byte, clienttypes.Height, error) {
+func (cc *LBMProvider) QueryOstraconProof(ctx context.Context, height int64, key []byte) ([]byte, []byte, clienttypes.Height, error) {
 	// ABCI queries at heights 1, 2 or less than or equal to 0 are not supported.
 	// Base app does not support queries for height less than or equal to 1.
 	// Therefore, a query at height 2 would be equivalent to a query at height 3.
@@ -191,7 +191,7 @@ func (cc *LBMProvider) QueryTendermintProof(ctx context.Context, height int64, k
 		return nil, nil, clienttypes.Height{}, fmt.Errorf("proof queries at height <= 2 are not supported")
 	}
 
-	// Use the IAVL height if a valid tendermint height is passed in.
+	// Use the IAVL height if a valid ostracon height is passed in.
 	// A height of 0 will query with the latest state.
 	if height != 0 {
 		height--
@@ -229,7 +229,7 @@ func (cc *LBMProvider) QueryTendermintProof(ctx context.Context, height int64, k
 func (cc *LBMProvider) QueryClientStateResponse(ctx context.Context, height int64, srcClientId string) (*clienttypes.QueryClientStateResponse, error) {
 	key := host.FullClientStateKey(srcClientId)
 
-	value, proofBz, proofHeight, err := cc.QueryTendermintProof(ctx, height, key)
+	value, proofBz, proofHeight, err := cc.QueryOstraconProof(ctx, height, key)
 	if err != nil {
 		return nil, err
 	}
@@ -278,7 +278,7 @@ func (cc *LBMProvider) QueryClientState(ctx context.Context, height int64, clien
 func (cc *LBMProvider) QueryClientConsensusState(ctx context.Context, chainHeight int64, clientid string, clientHeight ibcexported.Height) (*clienttypes.QueryConsensusStateResponse, error) {
 	key := host.FullConsensusStateKey(clientid, clientHeight)
 
-	value, proofBz, proofHeight, err := cc.QueryTendermintProof(ctx, chainHeight, key)
+	value, proofBz, proofHeight, err := cc.QueryOstraconProof(ctx, chainHeight, key)
 	if err != nil {
 		return nil, err
 	}
@@ -308,7 +308,7 @@ func (cc *LBMProvider) QueryClientConsensusState(ctx context.Context, chainHeigh
 }
 
 // QueryUpgradeProof performs an abci query with the given key and returns the proto encoded merkle proof
-// for the query and the height at which the proof will succeed on a tendermint verifier.
+// for the query and the height at which the proof will succeed on a ostracon verifier.
 func (cc *LBMProvider) QueryUpgradeProof(ctx context.Context, key []byte, height uint64) ([]byte, clienttypes.Height, error) {
 	res, err := cc.LBMChainClient.QueryABCI(ctx, abci.RequestQuery{
 		Path:   "store/upgrade/key",
@@ -333,7 +333,7 @@ func (cc *LBMProvider) QueryUpgradeProof(ctx context.Context, key []byte, height
 	revision := clienttypes.ParseChainID(cc.PCfg.ChainID)
 
 	// proof height + 1 is returned as the proof created corresponds to the height the proof
-	// was created in the IAVL tree. Tendermint and subsequently the clients that rely on it
+	// was created in the IAVL tree. Ostracon and subsequently the clients that rely on it
 	// have heights 1 above the IAVL tree. Thus we return proof height + 1
 	return proof, clienttypes.Height{
 		RevisionNumber: revision,
@@ -462,7 +462,7 @@ func (cc *LBMProvider) QueryConnection(ctx context.Context, height int64, connec
 func (cc *LBMProvider) queryConnectionABCI(ctx context.Context, height int64, connectionID string) (*conntypes.QueryConnectionResponse, error) {
 	key := host.ConnectionKey(connectionID)
 
-	value, proofBz, proofHeight, err := cc.QueryTendermintProof(ctx, height, key)
+	value, proofBz, proofHeight, err := cc.QueryOstraconProof(ctx, height, key)
 	if err != nil {
 		return nil, err
 	}
@@ -579,7 +579,7 @@ func (cc *LBMProvider) QueryChannel(ctx context.Context, height int64, channelid
 func (cc *LBMProvider) queryChannelABCI(ctx context.Context, height int64, portID, channelID string) (*chantypes.QueryChannelResponse, error) {
 	key := host.ChannelKey(portID, channelID)
 
-	value, proofBz, proofHeight, err := cc.QueryTendermintProof(ctx, height, key)
+	value, proofBz, proofHeight, err := cc.QueryOstraconProof(ctx, height, key)
 	if err != nil {
 		return nil, err
 	}
@@ -764,7 +764,7 @@ func (cc *LBMProvider) QueryUnreceivedAcknowledgements(ctx context.Context, heig
 func (cc *LBMProvider) QueryNextSeqRecv(ctx context.Context, height int64, channelid, portid string) (recvRes *chantypes.QueryNextSequenceReceiveResponse, err error) {
 	key := host.NextSequenceRecvKey(portid, channelid)
 
-	value, proofBz, proofHeight, err := cc.QueryTendermintProof(ctx, height, key)
+	value, proofBz, proofHeight, err := cc.QueryOstraconProof(ctx, height, key)
 	if err != nil {
 		return nil, err
 	}
@@ -787,7 +787,7 @@ func (cc *LBMProvider) QueryNextSeqRecv(ctx context.Context, height int64, chann
 func (cc *LBMProvider) QueryPacketCommitment(ctx context.Context, height int64, channelid, portid string, seq uint64) (comRes *chantypes.QueryPacketCommitmentResponse, err error) {
 	key := host.PacketCommitmentKey(portid, channelid, seq)
 
-	value, proofBz, proofHeight, err := cc.QueryTendermintProof(ctx, height, key)
+	value, proofBz, proofHeight, err := cc.QueryOstraconProof(ctx, height, key)
 	if err != nil {
 		return nil, err
 	}
@@ -808,7 +808,7 @@ func (cc *LBMProvider) QueryPacketCommitment(ctx context.Context, height int64, 
 func (cc *LBMProvider) QueryPacketAcknowledgement(ctx context.Context, height int64, channelid, portid string, seq uint64) (ackRes *chantypes.QueryPacketAcknowledgementResponse, err error) {
 	key := host.PacketAcknowledgementKey(portid, channelid, seq)
 
-	value, proofBz, proofHeight, err := cc.QueryTendermintProof(ctx, height, key)
+	value, proofBz, proofHeight, err := cc.QueryOstraconProof(ctx, height, key)
 	if err != nil {
 		return nil, err
 	}
@@ -828,7 +828,7 @@ func (cc *LBMProvider) QueryPacketAcknowledgement(ctx context.Context, height in
 func (cc *LBMProvider) QueryPacketReceipt(ctx context.Context, height int64, channelid, portid string, seq uint64) (recRes *chantypes.QueryPacketReceiptResponse, err error) {
 	key := host.PacketReceiptKey(portid, channelid, seq)
 
-	value, proofBz, proofHeight, err := cc.QueryTendermintProof(ctx, height, key)
+	value, proofBz, proofHeight, err := cc.QueryOstraconProof(ctx, height, key)
 	if err != nil {
 		return nil, err
 	}
@@ -939,7 +939,7 @@ func DefaultPageRequest() *querytypes.PageRequest {
 func (cc *LBMProvider) QueryConsensusStateABCI(ctx context.Context, clientID string, height ibcexported.Height) (*clienttypes.QueryConsensusStateResponse, error) {
 	key := host.FullConsensusStateKey(clientID, height)
 
-	value, proofBz, proofHeight, err := cc.QueryTendermintProof(ctx, int64(height.GetRevisionHeight()), key)
+	value, proofBz, proofHeight, err := cc.QueryOstraconProof(ctx, int64(height.GetRevisionHeight()), key)
 	if err != nil {
 		return nil, err
 	}
