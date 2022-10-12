@@ -44,6 +44,8 @@ Additional information on how IBC works can be found [here](https://ibc.cosmos.n
 - [New Chain Implementation](./docs/chain_implementation.md)
 - [Recommended Pruning Settings](./docs/node_pruning.md)
 - [Demo](./docs/demo.md)
+- [LBM Sims Demo](./docs/lbmsim-lbmsim-demo.md)
+- [LBM Sim and Gaia Demo](./docs/lbmsim-gaia-demo.md)
 
 ---
 ## Basic Usage - Relaying Packets Across Chains

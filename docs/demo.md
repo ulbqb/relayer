@@ -67,4 +67,4 @@ $ rly q bal ibc-1
 
 ---
 
-[<-- Pruning Settings](./node_pruning.md)
+[<-- Pruning Settings](./node_pruning.md) - [LBM Sims Demo -->](./lbmsim-lbmsim-demo.md)
