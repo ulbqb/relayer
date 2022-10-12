@@ -1,10 +1,10 @@
 VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT  := $(shell git log -1 --format='%H')
-GAIA_VERSION := v7.0.1
+GAIA_VERSION := v7.0.1/feat/ostracon
 AKASH_VERSION := v0.16.3
 OSMOSIS_VERSION := v8.0.0
 WASMD_VERSION := v0.25.0
-LBM_SDK_VERSION := main
+LBM_SDK_VERSION := d62f0c9/feat/tendermint
 
 GOPATH := $(shell go env GOPATH)
 GOBIN := $(GOPATH)/bin
@@ -103,14 +103,14 @@ lint:
 
 get-gaia:
 	@mkdir -p ./chain-code/
-	@git clone --branch $(GAIA_VERSION) --depth=1 https://github.com/cosmos/gaia.git ./chain-code/gaia
+	@git clone --branch $(GAIA_VERSION) --depth=1 https://github.com/ulbqb/gaia.git ./chain-code/gaia
 
 build-gaia:
 	@./examples/demo/scripts/build-gaia
 
 get-lbmsim:
 	@mkdir -p ./chain-code/
-	@git clone --branch $(LBM_SDK_VERSION) --depth=1 https://github.com/line/lbm-sdk.git ./chain-code/lbm-sdk
+	@git clone --branch $(LBM_SDK_VERSION) --depth=1 https://github.com/ulbqb/lbm-sdk.git ./chain-code/lbm-sdk
 
 build-lbmsim:
 	@./examples/demo/scripts/build-lbmsim
