@@ -1,4 +1,4 @@
-package lbm
+package cosmos
 
 import (
 	"context"
@@ -21,12 +21,12 @@ import (
 )
 
 var (
-	_ provider.ChainProvider  = &LBMProvider{}
-	_ provider.KeyProvider    = &LBMProvider{}
-	_ provider.ProviderConfig = &LBMProviderConfig{}
+	_ provider.ChainProvider  = &CosmosProvider{}
+	_ provider.KeyProvider    = &CosmosProvider{}
+	_ provider.ProviderConfig = &CosmosProviderConfig{}
 )
 
-type LBMProviderConfig struct {
+type CosmosProviderConfig struct {
 	Key            string  `json:"key" yaml:"key"`
 	ChainName      string  `json:"-" yaml:"-"`
 	ChainID        string  `json:"chain-id" yaml:"chain-id"`
@@ -42,15 +42,15 @@ type LBMProviderConfig struct {
 	SignModeStr    string  `json:"sign-mode" yaml:"sign-mode"`
 }
 
-func (pc LBMProviderConfig) Validate() error {
+func (pc CosmosProviderConfig) Validate() error {
 	if _, err := time.ParseDuration(pc.Timeout); err != nil {
 		return fmt.Errorf("invalid Timeout: %w", err)
 	}
 	return nil
 }
 
-// NewProvider validates the LBMProviderConfig, instantiates a ChainClient and then instantiates a LBMProvider
-func (pc LBMProviderConfig) NewProvider(log *zap.Logger, homepath string, debug bool, chainName string) (provider.ChainProvider, error) {
+// NewProvider validates the CosmosProviderConfig, instantiates a ChainClient and then instantiates a CosmosProvider
+func (pc CosmosProviderConfig) NewProvider(log *zap.Logger, homepath string, debug bool, chainName string) (provider.ChainProvider, error) {
 	if err := pc.Validate(); err != nil {
 		return nil, err
 	}
@@ -66,16 +66,16 @@ func (pc LBMProviderConfig) NewProvider(log *zap.Logger, homepath string, debug 
 	}
 	pc.ChainName = chainName
 
-	return &LBMProvider{
+	return &CosmosProvider{
 		log:         log,
 		ChainClient: *cc,
 		PCfg:        pc,
 	}, nil
 }
 
-// ChainClientConfig builds a ChainClientConfig struct from a LBMProviderConfig, this is used
-// to instantiate an instance of ChainClient from lens which is how we build the LBMProvider
-func ChainClientConfig(pcfg *LBMProviderConfig) *lens.ChainClientConfig {
+// ChainClientConfig builds a ChainClientConfig struct from a CosmosProviderConfig, this is used
+// to instantiate an instance of ChainClient from lens which is how we build the CosmosProvider
+func ChainClientConfig(pcfg *CosmosProviderConfig) *lens.ChainClientConfig {
 	return &lens.ChainClientConfig{
 		Key:            pcfg.Key,
 		ChainID:        pcfg.ChainID,
@@ -93,11 +93,11 @@ func ChainClientConfig(pcfg *LBMProviderConfig) *lens.ChainClientConfig {
 	}
 }
 
-type LBMProvider struct {
+type CosmosProvider struct {
 	log *zap.Logger
 
 	lens.ChainClient
-	PCfg LBMProviderConfig
+	PCfg CosmosProviderConfig
 
 	// metrics to monitor the provider
 	TotalFees   sdk.Coins
@@ -106,16 +106,16 @@ type LBMProvider struct {
 	metrics *processor.PrometheusMetrics
 }
 
-type LBMIBCHeader struct {
+type CosmosIBCHeader struct {
 	SignedHeader *tmtypes.SignedHeader
 	ValidatorSet *tmtypes.ValidatorSet
 }
 
-func (h LBMIBCHeader) Height() uint64 {
+func (h CosmosIBCHeader) Height() uint64 {
 	return uint64(h.SignedHeader.Height)
 }
 
-func (h LBMIBCHeader) ConsensusState() ibcexported.ConsensusState {
+func (h CosmosIBCHeader) ConsensusState() ibcexported.ConsensusState {
 	return &tmclient.ConsensusState{
 		Timestamp:          h.SignedHeader.Time,
 		Root:               commitmenttypes.NewMerkleRoot(h.SignedHeader.AppHash),
@@ -123,31 +123,31 @@ func (h LBMIBCHeader) ConsensusState() ibcexported.ConsensusState {
 	}
 }
 
-func (cc *LBMProvider) ProviderConfig() provider.ProviderConfig {
+func (cc *CosmosProvider) ProviderConfig() provider.ProviderConfig {
 	return cc.PCfg
 }
 
-func (cc *LBMProvider) ChainId() string {
+func (cc *CosmosProvider) ChainId() string {
 	return cc.PCfg.ChainID
 }
 
-func (cc *LBMProvider) ChainName() string {
+func (cc *CosmosProvider) ChainName() string {
 	return cc.PCfg.ChainName
 }
 
-func (cc *LBMProvider) Type() string {
+func (cc *CosmosProvider) Type() string {
 	return "cosmos"
 }
 
-func (cc *LBMProvider) Key() string {
+func (cc *CosmosProvider) Key() string {
 	return cc.PCfg.Key
 }
 
-func (cc *LBMProvider) Timeout() string {
+func (cc *CosmosProvider) Timeout() string {
 	return cc.PCfg.Timeout
 }
 
-func (cc *LBMProvider) AddKey(name string, coinType uint32) (*provider.KeyOutput, error) {
+func (cc *CosmosProvider) AddKey(name string, coinType uint32) (*provider.KeyOutput, error) {
 	// The lens client returns an equivalent KeyOutput type,
 	// but that type is declared in the lens module,
 	// and relayer's KeyProvider interface references the relayer KeyOutput.
@@ -165,7 +165,7 @@ func (cc *LBMProvider) AddKey(name string, coinType uint32) (*provider.KeyOutput
 }
 
 // Address returns the chains configured address as a string
-func (cc *LBMProvider) Address() (string, error) {
+func (cc *CosmosProvider) Address() (string, error) {
 	info, err := cc.Keybase.Key(cc.PCfg.Key)
 	if err != nil {
 		return "", err
@@ -184,7 +184,7 @@ func (cc *LBMProvider) Address() (string, error) {
 	return out, err
 }
 
-func (cc *LBMProvider) TrustingPeriod(ctx context.Context) (time.Duration, error) {
+func (cc *CosmosProvider) TrustingPeriod(ctx context.Context) (time.Duration, error) {
 	res, err := cc.QueryStakingParams(ctx)
 	if err != nil {
 		return 0, err
@@ -203,7 +203,7 @@ func (cc *LBMProvider) TrustingPeriod(ctx context.Context) (time.Duration, error
 }
 
 // Sprint returns the json representation of the specified proto message.
-func (cc *LBMProvider) Sprint(toPrint proto.Message) (string, error) {
+func (cc *CosmosProvider) Sprint(toPrint proto.Message) (string, error) {
 	out, err := cc.Codec.Marshaler.MarshalJSON(toPrint)
 	if err != nil {
 		return "", err
@@ -212,7 +212,7 @@ func (cc *LBMProvider) Sprint(toPrint proto.Message) (string, error) {
 }
 
 // WaitForNBlocks blocks until the next block on a given chain
-func (cc *LBMProvider) WaitForNBlocks(ctx context.Context, n int64) error {
+func (cc *CosmosProvider) WaitForNBlocks(ctx context.Context, n int64) error {
 	var initial int64
 	h, err := cc.RPCClient.Status(ctx)
 	if err != nil {
@@ -239,7 +239,7 @@ func (cc *LBMProvider) WaitForNBlocks(ctx context.Context, n int64) error {
 	}
 }
 
-func (cc *LBMProvider) BlockTime(ctx context.Context, height int64) (time.Time, error) {
+func (cc *CosmosProvider) BlockTime(ctx context.Context, height int64) (time.Time, error) {
 	resultBlock, err := cc.RPCClient.Block(ctx, &height)
 	if err != nil {
 		return time.Time{}, err
@@ -247,6 +247,6 @@ func (cc *LBMProvider) BlockTime(ctx context.Context, height int64) (time.Time, 
 	return resultBlock.Block.Time, nil
 }
 
-func (cc *LBMProvider) SetMetrics(m *processor.PrometheusMetrics) {
+func (cc *CosmosProvider) SetMetrics(m *processor.PrometheusMetrics) {
 	cc.metrics = m
 }

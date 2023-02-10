@@ -1,4 +1,4 @@
-package lbm
+package cosmos
 
 import (
 	"context"
@@ -19,10 +19,10 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type LBMChainProcessor struct {
+type CosmosChainProcessor struct {
 	log *zap.Logger
 
-	chainProvider *LBMProvider
+	chainProvider *CosmosProvider
 
 	pathProcessors processor.PathProcessors
 
@@ -54,8 +54,8 @@ type LBMChainProcessor struct {
 	parsedGasPrices *sdk.DecCoins
 }
 
-func NewLBMChainProcessor(log *zap.Logger, provider *LBMProvider, metrics *processor.PrometheusMetrics) *LBMChainProcessor {
-	return &LBMChainProcessor{
+func NewCosmosChainProcessor(log *zap.Logger, provider *CosmosProvider, metrics *processor.PrometheusMetrics) *CosmosChainProcessor {
+	return &CosmosChainProcessor{
 		log:                  log.With(zap.String("chain_name", provider.ChainName()), zap.String("chain_id", provider.ChainId())),
 		chainProvider:        provider,
 		latestClientState:    make(latestClientState),
@@ -93,19 +93,19 @@ func (l latestClientState) update(clientInfo clientInfo) {
 }
 
 // Provider returns the ChainProvider, which provides the methods for querying, assembling IBC messages, and sending transactions.
-func (ccp *LBMChainProcessor) Provider() provider.ChainProvider {
+func (ccp *CosmosChainProcessor) Provider() provider.ChainProvider {
 	return ccp.chainProvider
 }
 
 // Set the PathProcessors that this ChainProcessor should publish relevant IBC events to.
 // ChainProcessors need reference to their PathProcessors and vice-versa, handled by EventProcessorBuilder.Build().
-func (ccp *LBMChainProcessor) SetPathProcessors(pathProcessors processor.PathProcessors) {
+func (ccp *CosmosChainProcessor) SetPathProcessors(pathProcessors processor.PathProcessors) {
 	ccp.pathProcessors = pathProcessors
 }
 
 // latestHeightWithRetry will query for the latest height, retrying in case of failure.
 // It will delay by latestHeightQueryRetryDelay between attempts, up to latestHeightQueryRetries.
-func (ccp *LBMChainProcessor) latestHeightWithRetry(ctx context.Context) (latestHeight int64, err error) {
+func (ccp *CosmosChainProcessor) latestHeightWithRetry(ctx context.Context) (latestHeight int64, err error) {
 	return latestHeight, retry.Do(func() error {
 		latestHeightQueryCtx, cancelLatestHeightQueryCtx := context.WithTimeout(ctx, queryTimeout)
 		defer cancelLatestHeightQueryCtx()
@@ -124,7 +124,7 @@ func (ccp *LBMChainProcessor) latestHeightWithRetry(ctx context.Context) (latest
 
 // clientState will return the most recent client state if client messages
 // have already been observed for the clientID, otherwise it will query for it.
-func (ccp *LBMChainProcessor) clientState(ctx context.Context, clientID string) (provider.ClientState, error) {
+func (ccp *CosmosChainProcessor) clientState(ctx context.Context, clientID string) (provider.ClientState, error) {
 	if state, ok := ccp.latestClientState[clientID]; ok {
 		return state, nil
 	}
@@ -152,7 +152,7 @@ type queryCyclePersistence struct {
 // Run starts the query loop for the chain which will gather applicable ibc messages and push events out to the relevant PathProcessors.
 // The initialBlockHistory parameter determines how many historical blocks should be fetched and processed before continuing with current blocks.
 // ChainProcessors should obey the context and return upon context cancellation.
-func (ccp *LBMChainProcessor) Run(ctx context.Context, initialBlockHistory uint64) error {
+func (ccp *CosmosChainProcessor) Run(ctx context.Context, initialBlockHistory uint64) error {
 	// this will be used for persistence across query cycle loop executions
 	persistence := queryCyclePersistence{
 		minQueryLoopDuration:      defaultMinQueryLoopDuration,
@@ -216,7 +216,7 @@ func (ccp *LBMChainProcessor) Run(ctx context.Context, initialBlockHistory uint6
 }
 
 // initializeConnectionState will bootstrap the connectionStateCache with the open connection state.
-func (ccp *LBMChainProcessor) initializeConnectionState(ctx context.Context) error {
+func (ccp *CosmosChainProcessor) initializeConnectionState(ctx context.Context) error {
 	ctx, cancel := context.WithTimeout(ctx, queryTimeout)
 	defer cancel()
 	connections, err := ccp.chainProvider.QueryConnections(ctx)
@@ -236,7 +236,7 @@ func (ccp *LBMChainProcessor) initializeConnectionState(ctx context.Context) err
 }
 
 // initializeChannelState will bootstrap the channelStateCache with the open channel state.
-func (ccp *LBMChainProcessor) initializeChannelState(ctx context.Context) error {
+func (ccp *CosmosChainProcessor) initializeChannelState(ctx context.Context) error {
 	ctx, cancel := context.WithTimeout(ctx, queryTimeout)
 	defer cancel()
 	channels, err := ccp.chainProvider.QueryChannels(ctx)
@@ -263,11 +263,11 @@ func (ccp *LBMChainProcessor) initializeChannelState(ctx context.Context) error 
 	return nil
 }
 
-func (ccp *LBMChainProcessor) queryCycle(ctx context.Context, persistence *queryCyclePersistence) error {
+func (ccp *CosmosChainProcessor) queryCycle(ctx context.Context, persistence *queryCyclePersistence) error {
 	var err error
 	persistence.latestHeight, err = ccp.latestHeightWithRetry(ctx)
 
-	// don't want to cause LBMChainProcessor to quit here, can retry again next cycle.
+	// don't want to cause CosmosChainProcessor to quit here, can retry again next cycle.
 	if err != nil {
 		ccp.log.Error(
 			"Failed to query latest height after max attempts",
@@ -307,7 +307,7 @@ func (ccp *LBMChainProcessor) queryCycle(ctx context.Context, persistence *query
 
 	ppChanged := false
 
-	var latestHeader LBMIBCHeader
+	var latestHeader CosmosIBCHeader
 
 	newLatestQueriedBlock := persistence.latestQueriedBlock
 
@@ -336,7 +336,7 @@ func (ccp *LBMChainProcessor) queryCycle(ctx context.Context, persistence *query
 			break
 		}
 
-		latestHeader = ibcHeader.(LBMIBCHeader)
+		latestHeader = ibcHeader.(CosmosIBCHeader)
 
 		heightUint64 := uint64(i)
 
@@ -409,7 +409,7 @@ func (ccp *LBMChainProcessor) queryCycle(ctx context.Context, persistence *query
 	return nil
 }
 
-func (ccp *LBMChainProcessor) CollectMetrics(ctx context.Context, persistence *queryCyclePersistence) {
+func (ccp *CosmosChainProcessor) CollectMetrics(ctx context.Context, persistence *queryCyclePersistence) {
 	ccp.CurrentBlockHeight(ctx, persistence)
 
 	// Wait a while before updating the balance
@@ -419,11 +419,11 @@ func (ccp *LBMChainProcessor) CollectMetrics(ctx context.Context, persistence *q
 	}
 }
 
-func (ccp *LBMChainProcessor) CurrentBlockHeight(ctx context.Context, persistence *queryCyclePersistence) {
+func (ccp *CosmosChainProcessor) CurrentBlockHeight(ctx context.Context, persistence *queryCyclePersistence) {
 	ccp.metrics.SetLatestHeight(ccp.chainProvider.ChainId(), persistence.latestHeight)
 }
 
-func (ccp *LBMChainProcessor) CurrentRelayerBalance(ctx context.Context) {
+func (ccp *CosmosChainProcessor) CurrentRelayerBalance(ctx context.Context) {
 	// memoize the current gas prices to only show metrics for "interesting" denoms
 	if ccp.parsedGasPrices == nil {
 		gp, err := sdk.ParseDecCoins(ccp.chainProvider.Config.GasPrices)

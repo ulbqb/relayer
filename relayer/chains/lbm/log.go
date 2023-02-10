@@ -1,4 +1,4 @@
-package lbm
+package cosmos
 
 import (
 	"reflect"
@@ -40,7 +40,7 @@ func getChannelsIfPresent(events []provider.RelayerEvent) []zapcore.Field {
 }
 
 // LogFailedTx takes the transaction and the messages to create it and logs the appropriate data
-func (cc *LBMProvider) LogFailedTx(res *provider.RelayerTxResponse, err error, msgs []provider.RelayerMessage) {
+func (cc *CosmosProvider) LogFailedTx(res *provider.RelayerTxResponse, err error, msgs []provider.RelayerMessage) {
 	// Include the chain_id
 	fields := []zapcore.Field{zap.String("chain_id", cc.ChainId())}
 
@@ -74,7 +74,7 @@ func (cc *LBMProvider) LogFailedTx(res *provider.RelayerTxResponse, err error, m
 }
 
 // LogSuccessTx take the transaction and the messages to create it and logs the appropriate data
-func (cc *LBMProvider) LogSuccessTx(res *sdk.TxResponse, msgs []provider.RelayerMessage) {
+func (cc *CosmosProvider) LogSuccessTx(res *sdk.TxResponse, msgs []provider.RelayerMessage) {
 	// Include the chain_id
 	fields := []zapcore.Field{zap.String("chain_id", cc.ChainId())}
 

@@ -1,4 +1,4 @@
-package lbm
+package cosmos
 
 import (
 	"fmt"
@@ -10,32 +10,32 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-var _ provider.RelayerMessage = &LBMMessage{}
+var _ provider.RelayerMessage = &CosmosMessage{}
 
-type LBMMessage struct {
+type CosmosMessage struct {
 	Msg sdk.Msg
 }
 
-func NewLBMMessage(msg sdk.Msg) provider.RelayerMessage {
-	return LBMMessage{
+func NewCosmosMessage(msg sdk.Msg) provider.RelayerMessage {
+	return CosmosMessage{
 		Msg: msg,
 	}
 }
 
-func LBMMsg(rm provider.RelayerMessage) sdk.Msg {
-	if val, ok := rm.(LBMMessage); !ok {
-		fmt.Printf("got data of type %T but wanted provider.LBMMessage \n", val)
+func CosmosMsg(rm provider.RelayerMessage) sdk.Msg {
+	if val, ok := rm.(CosmosMessage); !ok {
+		fmt.Printf("got data of type %T but wanted provider.CosmosMessage \n", val)
 		return nil
 	} else {
 		return val.Msg
 	}
 }
 
-func LBMMsgs(rm ...provider.RelayerMessage) []sdk.Msg {
+func CosmosMsgs(rm ...provider.RelayerMessage) []sdk.Msg {
 	sdkMsgs := make([]sdk.Msg, 0)
 	for _, rMsg := range rm {
-		if val, ok := rMsg.(LBMMessage); !ok {
-			fmt.Printf("got data of type %T but wanted provider.LBMMessage \n", val)
+		if val, ok := rMsg.(CosmosMessage); !ok {
+			fmt.Printf("got data of type %T but wanted provider.CosmosMessage \n", val)
 			return nil
 		} else {
 			sdkMsgs = append(sdkMsgs, val.Msg)
@@ -44,16 +44,16 @@ func LBMMsgs(rm ...provider.RelayerMessage) []sdk.Msg {
 	return sdkMsgs
 }
 
-func (cm LBMMessage) Type() string {
+func (cm CosmosMessage) Type() string {
 	return sdk.MsgTypeURL(cm.Msg)
 }
 
-func (cm LBMMessage) MsgBytes() ([]byte, error) {
+func (cm CosmosMessage) MsgBytes() ([]byte, error) {
 	return proto.Marshal(cm.Msg)
 }
 
 // MarshalLogObject is used to encode cm to a zap logger with the zap.Object field type.
-func (cm LBMMessage) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+func (cm CosmosMessage) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	// Using plain json.Marshal or calling cm.Msg.String() both fail miserably here.
 	// There is probably a better way to encode the message than this.
 	j, err := codec.NewLegacyAmino().MarshalJSON(cm.Msg)
