@@ -10,8 +10,8 @@ import (
 	chantypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	"github.com/cosmos/relayer/v2/relayer/provider"
 	"github.com/google/go-cmp/cmp"
-	abci "github.com/line/ostracon/abci/types"
 	"github.com/stretchr/testify/require"
+	abci "github.com/tendermint/tendermint/abci/types"
 	"go.uber.org/zap"
 )
 

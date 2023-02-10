@@ -23,10 +23,10 @@ import (
 	commitmenttypes "github.com/cosmos/ibc-go/v5/modules/core/23-commitment/types"
 	host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
 	ibcexported "github.com/cosmos/ibc-go/v5/modules/core/exported"
-	occlient "github.com/cosmos/ibc-go/v5/modules/light-clients/99-ostracon/types"
+	tmclient "github.com/cosmos/ibc-go/v5/modules/light-clients/07-tendermint/types"
 	"github.com/cosmos/relayer/v2/relayer/provider"
-	abci "github.com/line/ostracon/abci/types"
-	octypes "github.com/line/ostracon/types"
+	abci "github.com/tendermint/tendermint/abci/types"
+	tmtypes "github.com/tendermint/tendermint/types"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
@@ -47,7 +47,7 @@ func (cc *LBMProvider) queryIBCMessages(ctx context.Context, log *zap.Logger, pa
 		return nil, errors.New("limit must greater than 0")
 	}
 
-	res, err := cc.LBMChainClient.RPCClient.TxSearch(ctx, query, true, &page, &limit, "")
+	res, err := cc.RPCClient.TxSearch(ctx, query, true, &page, &limit, "")
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (cc *LBMProvider) QueryTx(ctx context.Context, hashHex string) (*provider.R
 		return nil, err
 	}
 
-	resp, err := cc.LBMChainClient.RPCClient.Tx(ctx, hash, true)
+	resp, err := cc.RPCClient.Tx(ctx, hash, true)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (cc *LBMProvider) QueryTxs(ctx context.Context, page, limit int, events []s
 		return nil, errors.New("limit must greater than 0")
 	}
 
-	res, err := cc.LBMChainClient.RPCClient.TxSearch(ctx, strings.Join(events, " AND "), true, &page, &limit, "")
+	res, err := cc.RPCClient.TxSearch(ctx, strings.Join(events, " AND "), true, &page, &limit, "")
 	if err != nil {
 		return nil, err
 	}
@@ -204,12 +204,12 @@ func (cc *LBMProvider) QueryTendermintProof(ctx context.Context, height int64, k
 		Prove:  true,
 	}
 
-	res, err := cc.LBMChainClient.QueryABCI(ctx, req)
+	res, err := cc.QueryABCI(ctx, req)
 	if err != nil {
 		return nil, nil, clienttypes.Height{}, err
 	}
 
-	merkleProof, err := CommitmenttypesDotConvertProofs(res.ProofOps)
+	merkleProof, err := commitmenttypes.ConvertProofs(res.ProofOps)
 	if err != nil {
 		return nil, nil, clienttypes.Height{}, err
 	}
@@ -310,7 +310,7 @@ func (cc *LBMProvider) QueryClientConsensusState(ctx context.Context, chainHeigh
 // QueryUpgradeProof performs an abci query with the given key and returns the proto encoded merkle proof
 // for the query and the height at which the proof will succeed on a tendermint verifier.
 func (cc *LBMProvider) QueryUpgradeProof(ctx context.Context, key []byte, height uint64) ([]byte, clienttypes.Height, error) {
-	res, err := cc.LBMChainClient.QueryABCI(ctx, abci.RequestQuery{
+	res, err := cc.QueryABCI(ctx, abci.RequestQuery{
 		Path:   "store/upgrade/key",
 		Height: int64(height - 1),
 		Data:   key,
@@ -320,7 +320,7 @@ func (cc *LBMProvider) QueryUpgradeProof(ctx context.Context, key []byte, height
 		return nil, clienttypes.Height{}, err
 	}
 
-	merkleProof, err := CommitmenttypesDotConvertProofs(res.ProofOps)
+	merkleProof, err := commitmenttypes.ConvertProofs(res.ProofOps)
 	if err != nil {
 		return nil, clienttypes.Height{}, err
 	}
@@ -398,24 +398,24 @@ func (cc *LBMProvider) QueryUpgradedConsState(ctx context.Context, height int64)
 // QueryConsensusState returns a consensus state for a given chain to be used as a
 // client in another chain, fetches latest height when passed 0 as arg
 func (cc *LBMProvider) QueryConsensusState(ctx context.Context, height int64) (ibcexported.ConsensusState, int64, error) {
-	commit, err := cc.LBMChainClient.RPCClient.Commit(ctx, &height)
+	commit, err := cc.RPCClient.Commit(ctx, &height)
 	if err != nil {
-		return &occlient.ConsensusState{}, 0, err
+		return &tmclient.ConsensusState{}, 0, err
 	}
 
 	page := 1
 	count := 10_000
 
 	nextHeight := height + 1
-	nextVals, err := cc.LBMChainClient.RPCClient.Validators(ctx, &nextHeight, &page, &count)
+	nextVals, err := cc.RPCClient.Validators(ctx, &nextHeight, &page, &count)
 	if err != nil {
-		return &occlient.ConsensusState{}, 0, err
+		return &tmclient.ConsensusState{}, 0, err
 	}
 
-	state := &occlient.ConsensusState{
+	state := &tmclient.ConsensusState{
 		Timestamp:          commit.Time,
 		Root:               commitmenttypes.NewMerkleRoot(commit.AppHash),
-		NextValidatorsHash: octypes.NewValidatorSet(nextVals.Validators).Hash(),
+		NextValidatorsHash: tmtypes.NewValidatorSet(nextVals.Validators).Hash(),
 	}
 
 	return state, height, nil
@@ -841,7 +841,7 @@ func (cc *LBMProvider) QueryPacketReceipt(ctx context.Context, height int64, cha
 }
 
 func (cc *LBMProvider) QueryLatestHeight(ctx context.Context) (int64, error) {
-	stat, err := cc.LBMChainClient.RPCClient.Status(ctx)
+	stat, err := cc.RPCClient.Status(ctx)
 	if err != nil {
 		return -1, err
 	} else if stat.SyncInfo.CatchingUp {
@@ -860,22 +860,22 @@ func (cc *LBMProvider) QueryHeaderAtHeight(ctx context.Context, height int64) (i
 		return nil, fmt.Errorf("must pass in valid height, %d not valid", height)
 	}
 
-	res, err := cc.LBMChainClient.RPCClient.Commit(ctx, &height)
+	res, err := cc.RPCClient.Commit(ctx, &height)
 	if err != nil {
 		return nil, err
 	}
 
-	val, err := cc.LBMChainClient.RPCClient.Validators(ctx, &height, &page, &perPage)
+	val, err := cc.RPCClient.Validators(ctx, &height, &page, &perPage)
 	if err != nil {
 		return nil, err
 	}
 
-	protoVal, err := octypes.NewValidatorSet(val.Validators).ToProto()
+	protoVal, err := tmtypes.NewValidatorSet(val.Validators).ToProto()
 	if err != nil {
 		return nil, err
 	}
 
-	return &occlient.Header{
+	return &tmclient.Header{
 		// NOTE: This is not a SignedHeader
 		// We are missing a light.Commit type here
 		SignedHeader: res.SignedHeader.ToProto(),

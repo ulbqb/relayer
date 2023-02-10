@@ -14,7 +14,7 @@ import (
 	chantypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	"github.com/cosmos/relayer/v2/relayer/processor"
 	"github.com/cosmos/relayer/v2/relayer/provider"
-	ctypes "github.com/line/ostracon/rpc/core/types"
+	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
@@ -321,7 +321,7 @@ func (ccp *LBMChainProcessor) queryCycle(ctx context.Context, persistence *query
 		eg.Go(func() (err error) {
 			queryCtx, cancelQueryCtx := context.WithTimeout(ctx, blockResultsQueryTimeout)
 			defer cancelQueryCtx()
-			blockRes, err = ccp.chainProvider.LBMChainClient.RPCClient.BlockResults(queryCtx, &i)
+			blockRes, err = ccp.chainProvider.RPCClient.BlockResults(queryCtx, &i)
 			return err
 		})
 		eg.Go(func() (err error) {

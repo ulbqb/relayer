@@ -11,7 +11,7 @@ import (
 	chantypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	"github.com/cosmos/relayer/v2/relayer/processor"
 	"github.com/cosmos/relayer/v2/relayer/provider"
-	abci "github.com/line/ostracon/abci/types"
+	abci "github.com/tendermint/tendermint/abci/types"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -51,7 +51,7 @@ func ibcMessagesFromEvents(
 ) (messages []ibcMessage) {
 	recvPacketMsgs := make(map[packetKey]*packetInfo)
 	for _, event := range events {
-		evt := SDKDotStringifyEvent(event)
+		evt := sdk.StringifyEvent(event)
 		switch event.Type {
 		case chantypes.EventTypeRecvPacket, chantypes.EventTypeWriteAck:
 			pi := &packetInfo{Height: height}
