@@ -4,7 +4,7 @@ GAIA_VERSION := v7.0.1/feat/ostracon
 AKASH_VERSION := v0.16.3
 OSMOSIS_VERSION := v8.0.0
 WASMD_VERSION := v0.25.0
-LBM_SDK_VERSION := d62f0c9/feat/tendermint
+LBM_SDK_VERSION := fix/tm_ibc_client
 
 GOPATH := $(shell go env GOPATH)
 GOBIN := $(GOPATH)/bin
@@ -110,7 +110,7 @@ build-gaia:
 
 get-lbmsim:
 	@mkdir -p ./chain-code/
-	@git clone --branch $(LBM_SDK_VERSION) --depth=1 https://github.com/ulbqb/lbm-sdk.git ./chain-code/lbm-sdk
+	@git clone --branch $(LBM_SDK_VERSION) --depth=1 https://github.com/ulbqb/ibc-go.git ./chain-code/lbm-sdk
 
 build-lbmsim:
 	@./examples/demo/scripts/build-lbmsim
