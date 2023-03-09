@@ -1,0 +1,12 @@
+{
+  "src": {
+    "chain-id": "tiger-0"
+  },
+  "dst": {
+    "chain-id": "theta-testnet-001"
+  },
+  "src-channel-filter": {
+    "rule": null,
+    "channel-list": []
+  }
+}

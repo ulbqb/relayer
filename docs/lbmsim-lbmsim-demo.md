@@ -6,7 +6,7 @@
 
 While the relayer is under active development, it is meant primarily as a learning
 tool to better understand the Inter-Blockchain Communication (IBC) protocol. In
-that vein, the following lbmsim-lbmsim lbmsim-lbmsimnstrates the core functionality which will
+that vein, the following lbmsim-lbmsim demonstrates the core functionality which will
 remain even after the changes:
 
 ```bash
