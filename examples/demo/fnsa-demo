@@ -1,0 +1,58 @@
+#!/bin/bash -e
+RELAYER_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+RELAYER_CONF="$HOME/.relayer"
+FNSA_CONF="$(pwd)/data"
+
+# Ensure user understands what will be deleted
+if ([[ -d $RELAYER_CONF ]] || [[ -d $FNSA_CONF ]]) && [[ ! "$1" == "skip" ]]; then
+  read -p "$0 will delete \$HOME/.relayer and \$(pwd)/data folder. Do you wish to continue? (y/n): " -n 1 -r
+  echo
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      exit 1
+  fi
+fi
+
+cd $RELAYER_DIR
+rm -rf $RELAYER_CONF &> /dev/null
+pwd
+# spin up two ibc enabled chains and add relevant config info for relaying
+bash scripts/fnsa-chainz "skip"
+
+echo "waiting for blocks..."
+sleep 3
+
+# creates clients, connections and channels (all this happens in rly tx command)
+rly tx link fnsa-fnsa -d -t 3s
+sleep 2
+echo "--  Initial balances --"
+echo "balance 0 $(rly q bal fnsa-0)"
+echo "balance 1 $(rly q bal fnsa-1)"
+
+echo "-- Sending IBC transaction... --"
+rly tx transfer fnsa-0 fnsa-1 100000samoleans "$(rly keys show fnsa-1)" channel-0 -d
+sleep 5
+
+# relay remaining packets -- (could also be accomplished by running: `rly start`)
+rly tx relay-packets fnsa-fnsa channel-0 -d
+sleep 5
+
+# relay remaining acknowledgments -- (could also be accomplished by running: `rly start`)
+rly tx relay-acknowledgements fnsa-fnsa channel-0 -d
+sleep 5
+echo "-- Balances after packets are sent --"
+echo "balance 0 $(rly q bal fnsa-0)"
+echo "balance 1 $(rly q bal fnsa-1)"
+
+echo "-- Sending tokens back to original wallet... --"
+rly tx transfer fnsa-1 fnsa-0 100000transfer/channel-0/samoleans "$(rly keys show fnsa-0)" channel-0 -d
+sleep 5
+
+rly tx relay-packets fnsa-fnsa channel-0 -d
+sleep 5
+
+rly tx relay-acknowledgements fnsa-fnsa channel-0 -d
+sleep 5
+
+echo "-- Balances after sending packets back --"
+echo "balance 0 $(rly q bal fnsa-0)"
+echo "balance 1 $(rly q bal fnsa-1)"

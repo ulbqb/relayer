@@ -5,6 +5,7 @@ GAIA_VERSION := v7.0.1
 AKASH_VERSION := v0.16.3
 OSMOSIS_VERSION := v8.0.0
 WASMD_VERSION := v0.25.0
+FNSA_VERSION := hackwasm2023
 DOCKER := $(shell which docker)
 
 GOPATH := $(shell go env GOPATH)
@@ -100,6 +101,7 @@ lint:
 
 CHAIN_CODE := ./chain-code
 GAIA_REPO := $(CHAIN_CODE)/gaia
+FNSA_REPO := $(CHAIN_CODE)/fnsa
 
 get-gaia:
 	@mkdir -p $(CHAIN_CODE)/
@@ -110,6 +112,16 @@ build-gaia:
 	@cd $(GAIA_REPO) && \
 	make install &> /dev/null
 	@gaiad version --long
+
+get-fnsa:
+	@mkdir -p $(CHAIN_CODE)/
+	@git clone --branch $(FNSA_VERSION) --depth=1 https://github.com/Finschia/finschia.git $(FNSA_REPO)
+
+build-fnsa:
+	@[ -d $(FNSA_REPO) ] || { echo "Repositry for gaia does not exist at $(FNSA_REPO). Try running 'make get-fnsa'..." ; exit 1; }
+	@cd $(FNSA_REPO) && \
+	make install &> /dev/null
+	@fnsad version --long
 
 .PHONY: two-chains test test-integration interchaintest install build lint coverage clean
 
